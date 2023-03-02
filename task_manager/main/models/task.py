@@ -31,9 +31,7 @@ class Task(models.Model):
     created_at = models.DateField(auto_now_add=True)
     edited_at = models.DateField(auto_now=True)
     deadline = models.DateField(null=True)
-    state = models.CharField(
-        max_length=255, default=States.NEW, choices=States.choices
-    )
+    state = models.CharField(max_length=255, default=States.NEW, choices=States.choices)
     priority = models.CharField(max_length=255, null=True, choices=Priorities.choices)
     tags = models.ManyToManyField(Tag)
 

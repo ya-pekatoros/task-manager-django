@@ -15,19 +15,22 @@ class TestAdmin(APITestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         super().setUpTestData()
-        cls.admin = User.objects.create_superuser("test@test.ru", email=None, password=None)
+        cls.admin = User.objects.create_superuser(
+            "test@test.ru", email=None, password=None
+        )
         cls.client = APIClient()
         cls.client.force_login(cls.admin)
-
 
     def test_user(self):
         response = self.client.get(reverse("admin:main_user_changelist"))
         assert response.status_code == HTTPStatus.OK, response.content
         response = self.client.get(reverse("admin:main_user_add"))
         assert response.status_code == HTTPStatus.OK, response.content
-        response = self.client.get(reverse("admin:main_user_change", args=[self.admin.id]))
+        response = self.client.get(
+            reverse("admin:main_user_change", args=[self.admin.id])
+        )
         assert response.status_code == HTTPStatus.OK, response.content
-        
+
     @classmethod
     def assert_forms(
         cls, model: Type[models.Model], key: int, check_actions: Container = ()
