@@ -9,18 +9,16 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "username", "name", "surname", "email", "role")
 
 
-class TagSerializer(serializers.ModelSerializer):
-    tasks = TaskSerializer(many=True, read_only=True, source="task_set")
-
-    class Meta:
-        model = Tag
-        fields = ("id", "title", "tasks")
-
-
 class TaskSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     executor = UserSerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
+    tags = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+        queryset=Tag.objects.all(),
+        source='tags'
+    )
 
     class Meta:
         model = Task
@@ -36,3 +34,11 @@ class TaskSerializer(serializers.ModelSerializer):
             "priority",
             "tags",
         )
+
+
+class TagSerializer(serializers.ModelSerializer):
+    tasks = TaskSerializer(many=True, read_only=True, source="task_set")
+
+    class Meta:
+        model = Tag
+        fields = ("id", "title", "tasks")
