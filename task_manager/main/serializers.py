@@ -16,7 +16,6 @@ class TaskSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field='name',
-        queryset=Tag.objects.all(),
         source='tags'
     )
 
