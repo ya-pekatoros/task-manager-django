@@ -29,8 +29,8 @@ class TagViewSet(viewsets.ModelViewSet):
 class TaskFilter(django_filters.FilterSet):
     state = django_filters.CharFilter(field_name="state", lookup_expr="iexact")
     tags = django_filters.ModelMultipleChoiceFilter(
-        field_name="tags__name",
-        to_field_name="name",
+        field_name="tags__title",
+        to_field_name="title",
         queryset=Tag.objects.all(),
     )
     author = django_filters.CharFilter(
