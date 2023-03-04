@@ -40,33 +40,33 @@ class Task(models.Model):
     def clean(self):
         if self.pk:
             old_task = Task.objects.get(pk=self.pk)
-            if old_task.state == self.States.NEW:
-                if self.state not in [
-                    self.States.IN_DEVELOPMENT,
-                    self.States.ARCHIVED,
-                ]:
-                    raise ValidationError("Invalid status transition")
-            elif old_task.state == self.States.IN_DEVELOPMENT:
-                if self.state != self.States.IN_QA:
-                    raise ValidationError("Invalid status transition")
-            elif old_task.state == self.States.IN_QA:
-                if self.state not in [
-                    self.States.IN_DEVELOPMENT,
-                    self.States.IN_CODE_REVIEW,
-                ]:
-                    raise ValidationError("Invalid status transition")
-            elif old_task.state == self.States.IN_CODE_REVIEW:
-                if self.state not in [
-                    self.States.READY_FOR_RELEASE,
-                    self.States.IN_DEVELOPMENT,
-                ]:
-                    raise ValidationError("Invalid status transition")
-            elif old_task.state == self.States.READY_FOR_RELEASE:
-                if self.state != self.States.RELEASED:
-                    raise ValidationError("Invalid status transition")
-            elif old_task.state == self.States.RELEASED:
-                if self.state != self.States.ARCHIVED:
-                    raise ValidationError("Invalid status transition")
-            elif old_task.state == self.States.ARCHIVED:
-                if self.state != self.States.ARCHIVED:
+            if self.state != old_task.state:
+                if old_task.state == self.States.NEW:
+                    if self.state not in [
+                        self.States.IN_DEVELOPMENT,
+                        self.States.ARCHIVED,
+                    ]:
+                        raise ValidationError("Invalid status transition")
+                elif old_task.state == self.States.IN_DEVELOPMENT:
+                    if self.state != self.States.IN_QA:
+                        raise ValidationError("Invalid status transition")
+                elif old_task.state == self.States.IN_QA:
+                    if self.state not in [
+                        self.States.IN_DEVELOPMENT,
+                        self.States.IN_CODE_REVIEW,
+                    ]:
+                        raise ValidationError("Invalid status transition")
+                elif old_task.state == self.States.IN_CODE_REVIEW:
+                    if self.state not in [
+                        self.States.READY_FOR_RELEASE,
+                        self.States.IN_DEVELOPMENT,
+                    ]:
+                        raise ValidationError("Invalid status transition")
+                elif old_task.state == self.States.READY_FOR_RELEASE:
+                    if self.state != self.States.RELEASED:
+                        raise ValidationError("Invalid status transition")
+                elif old_task.state == self.States.RELEASED:
+                    if self.state != self.States.ARCHIVED:
+                        raise ValidationError("Invalid status transition")
+                elif old_task.state == self.States.ARCHIVED:
                     raise ValidationError("Invalid status transition")
