@@ -15,8 +15,9 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    tasks = (
-        Task.objects.select_related("author", "executor")
+    queryset = (
+        Task.objects
+        .select_related("author", "executor")
         .prefetch_related("tags")
         .order_by("id")
     )
