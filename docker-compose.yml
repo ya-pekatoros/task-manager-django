@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  api:
+    build: .
+    volumes:
+      - .:/app:cached
+      - ~/.ssh:/root/.ssh
+      - ~/.bash_history:/root/.bash_history
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    environment: &api-environment
+      DJANGO_ENV: dev
+      DJANGO_SECRET_KEY: secret_key
+    command: python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: postgres:11.4
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
