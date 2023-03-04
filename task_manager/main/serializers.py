@@ -15,7 +15,7 @@ class TaskSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field='name',
+        slug_field='title',
     )
 
     class Meta:
