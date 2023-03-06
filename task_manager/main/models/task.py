@@ -37,6 +37,9 @@ class Task(models.Model):
     priority = models.CharField(max_length=255, null=True, choices=Priorities.choices)
     tags = models.ManyToManyField(Tag)
 
+    def __str__(self):
+        return self.title
+
     def clean(self):
         if self.pk:
             old_task = Task.objects.get(pk=self.pk)
