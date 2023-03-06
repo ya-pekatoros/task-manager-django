@@ -14,8 +14,8 @@ task_manager_admin_site = TaskManagerAdminSite(name="Task manager admin")
 
 @admin.register(User, site=task_manager_admin_site)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("username", "name", "surname", "email", "role")
-    search_fields = ["username", "name", "surname", "email", "role"]
+    list_display = ('username', 'name', 'surname', 'email', 'role')
+    search_fields = ['username', 'name', 'surname', 'email', 'role']
 
 
 @admin.register(Tag, site=task_manager_admin_site)
