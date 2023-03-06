@@ -12,6 +12,7 @@ djangorestframework = "^3.14.0"
 django-filter = "^22.1"
 markdown = "^3.4.1"
 
+
 [tool.poetry.dev-dependencies]
 
 [tool.poetry.group.dev.dependencies]
