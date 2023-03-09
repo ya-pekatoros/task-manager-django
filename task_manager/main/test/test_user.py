@@ -197,20 +197,20 @@ class TestUserViewSetNonAutorized(TestViewSetBase):
 
     def test_list(self):
         response = self.list()
-        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.content
 
     def test_retrieve(self):
         response = self.retrieve(key=1)
-        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.content
 
     def test_delete(self):
         response = self.delete(key=1)
-        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.content
 
     def test_update(self):
         response = self.update(key=1, data={})
-        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.content
 
     def test_create(self):
         response = self.create(data={})
-        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.content
