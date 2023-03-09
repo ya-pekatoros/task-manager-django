@@ -47,7 +47,6 @@ class TestJWTAuth(APITestCase):
         response = self.refresh_token_request(refresh_token)
         assert response.status_code == HTTPStatus.OK
         assert response.json()["access"]
-
     def test_token_auth(self) -> None:
         client = self.client_class()
         response = client.get(self.any_api_url)
