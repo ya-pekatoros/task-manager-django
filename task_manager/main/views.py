@@ -13,6 +13,7 @@ from .serializers import (
     TaskPostSerializer,
     TaskPutExecutorSerializer,
     TaskPutAuthorSerializer,
+    TaskPutAdminSerializer,
     TagSerializer,
 )
 
@@ -97,11 +98,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         if self.request.method == "POST":
             return TaskPostSerializer
         if self.request.method in ["PUT", "PATCH"]:
-            if (
-                self.request.user == getattr(self.get_object(), "author")
-                or self.request.user.is_staff
-            ):
+            if self.request.user == getattr(self.get_object(), "author"):
                 return TaskPutAuthorSerializer
+            if self.request.user.is_staff:
+                return TaskPutAdminSerializer
             if self.request.user == getattr(self.get_object(), "executor"):
                 return TaskPutExecutorSerializer
 
