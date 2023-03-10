@@ -1,4 +1,3 @@
-import json
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -64,7 +63,7 @@ class TestViewSetBase(APITestCase):
 
     @staticmethod
     def expected_details(entity: bytes, attributes: dict):
-        entity_decoded = json.loads(entity.decode("utf-8"))
+        entity_decoded = entity.json()
         if isinstance(entity_decoded, list):
             entity_decoded = entity_decoded[0]
         return {**attributes, "id": entity_decoded["id"]}

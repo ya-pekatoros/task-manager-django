@@ -1,7 +1,6 @@
 from task_manager.main.test.base import TestViewSetBase
 from task_manager.main.models import User
 from http import HTTPStatus
-import json
 
 
 class TestTagViewSetNonAutorized(TestViewSetBase):
@@ -47,22 +46,21 @@ class TestTagViewSetAdmin(TestViewSetBase):
         data = self.tag_attributes
         response = self.create(data=data)
         data["tasks"] = []
-        expected_response = self.expected_details(response.content, data)
+        expected_response = self.expected_details(response, data)
         assert response.status_code == HTTPStatus.CREATED, response.content
-        assert json.loads(response.content.decode("utf-8")) == expected_response
+        assert response.json() == expected_response
 
     def test_list(self):
         response = self.list()
-        print(self.tag)
         assert response.status_code == HTTPStatus.OK, response.content
         self.tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response.content, self.tag_attributes)
-        assert json.loads(response.content.decode("utf-8"))[0] == expected_response
+        expected_response = self.expected_details(response, self.tag_attributes)
+        assert response.json()[0] == expected_response
         self.tag_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.tag_attributes["id"])
-        assert json.loads(response.content.decode("utf-8")) == self.tag_attributes
+        assert response.json() == self.tag_attributes
 
     def test_update(self):
         self.tag_attributes["title"] = "bug-updated"
@@ -71,10 +69,10 @@ class TestTagViewSetAdmin(TestViewSetBase):
         response = self.update(key=id, data=self.tag_attributes)
         assert response.status_code == HTTPStatus.OK, response.content
         self.tag_attributes["id"] = id
-        assert json.loads(response.content.decode("utf-8")) == self.tag_attributes
+        assert response.json() == self.tag_attributes
 
     def test_delete(self):
-        object_data = json.loads(self.list().content.decode("utf-8"))[0]
+        object_data = self.list().json()[0]
         id = object_data["id"]
         response = self.delete(key=id)
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
@@ -96,22 +94,21 @@ class TestTagViewSetAdmin(TestViewSetBase):
         data = self.tag_attributes
         response = self.create(data=data)
         data["tasks"] = []
-        expected_response = self.expected_details(response.content, data)
+        expected_response = self.expected_details(response, data)
         assert response.status_code == HTTPStatus.CREATED, response.content
-        assert json.loads(response.content.decode("utf-8")) == expected_response
+        assert response.json() == expected_response
 
     def test_list(self):
         response = self.list()
-        print(self.tag)
         assert response.status_code == HTTPStatus.OK, response.content
         self.tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response.content, self.tag_attributes)
-        assert json.loads(response.content.decode("utf-8"))[0] == expected_response
+        expected_response = self.expected_details(response, self.tag_attributes)
+        assert response.json()[0] == expected_response
         self.tag_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.tag_attributes["id"])
-        assert json.loads(response.content.decode("utf-8")) == self.tag_attributes
+        assert response.json() == self.tag_attributes
 
     def test_update(self):
         self.tag_attributes["title"] = "bug-updated"
@@ -122,7 +119,7 @@ class TestTagViewSetAdmin(TestViewSetBase):
         self.tag_attributes["id"] = id
 
     def test_delete(self):
-        object_data = json.loads(self.list().content.decode("utf-8"))[0]
+        object_data = self.list().json()[0]
         id = object_data["id"]
         response = self.delete(key=id)
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
@@ -144,22 +141,21 @@ class TestTagViewSetManager(TestViewSetBase):
         data = self.tag_attributes
         response = self.create(data=data)
         data["tasks"] = []
-        expected_response = self.expected_details(response.content, data)
+        expected_response = self.expected_details(response, data)
         assert response.status_code == HTTPStatus.CREATED, response.content
-        assert json.loads(response.content.decode("utf-8")) == expected_response
+        assert response.json() == expected_response
 
     def test_list(self):
         response = self.list()
-        print(self.tag)
         assert response.status_code == HTTPStatus.OK, response.content
         self.tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response.content, self.tag_attributes)
-        assert json.loads(response.content.decode("utf-8"))[0] == expected_response
+        expected_response = self.expected_details(response, self.tag_attributes)
+        assert response.json()[0] == expected_response
         self.tag_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.tag_attributes["id"])
-        assert json.loads(response.content.decode("utf-8")) == self.tag_attributes
+        assert response.json() == self.tag_attributes
 
     def test_update(self):
         self.tag_attributes["title"] = "bug-updated"
@@ -170,7 +166,7 @@ class TestTagViewSetManager(TestViewSetBase):
         self.tag_attributes["id"] = id
 
     def test_delete(self):
-        object_data = json.loads(self.list().content.decode("utf-8"))[0]
+        object_data = self.list().json()[0]
         id = object_data["id"]
         response = self.delete(key=id)
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content

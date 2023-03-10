@@ -1,7 +1,6 @@
 from task_manager.main.test.base import TestViewSetBase
 from task_manager.main.models import User, Task, Tag
 from http import HTTPStatus
-import json
 
 
 class TestTaskViewSetNonAutorized(TestViewSetBase):
@@ -78,7 +77,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
     def test_list(self):
         response = self.list()
         assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = json.loads(response.content.decode("utf-8"))[0]
+        response_dict = response.json()[0]
         assert response_dict["title"] == self.task_attributes["title"]
         assert response_dict["author"]["email"] == self.user_3_attributes["email"]
         self.task_attributes["id"] = response_dict["id"]
@@ -86,12 +85,12 @@ class TestTaskViewSetAdmin(TestViewSetBase):
     def test_retrieve(self):
         response = self.retrieve(key=self.task_attributes["id"])
         assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
         assert response_dict["title"] == self.task_attributes["title"]
         assert response_dict["author"]["email"] == self.user_3_attributes["email"]
 
     def test_delete(self):
-        object_data = json.loads(self.list().content.decode("utf-8"))[0]
+        object_data = self.list().json()[0]
         id = object_data["id"]
         response = self.delete(key=id)
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
@@ -111,7 +110,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         response = self.update(key=id, data=self.task_attributes)
 
         self.task_attributes["id"] = id
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
         assert (
@@ -139,7 +138,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
 
         response = self.create(data)
 
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
 
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response_dict["tags"] == [
@@ -200,19 +199,19 @@ class TestTaskViewSetManager(TestViewSetBase):
     def test_list(self):
         response = self.list()
         assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = json.loads(response.content.decode("utf-8"))[0]
+        response_dict = response.json()[0]
         assert response_dict["title"] == self.task_attributes["title"]
         assert response_dict["author"]["email"] == self.user_attributes["email"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.task_attributes["id"])
         assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
         assert response_dict["title"] == self.task_attributes["title"]
         assert response_dict["author"]["email"] == self.user_attributes["email"]
 
     def test_delete(self):
-        object_data = json.loads(self.list().content.decode("utf-8"))[0]
+        object_data = self.list().json()[0]
         id = object_data["id"]
         response = self.delete(key=id)
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
@@ -240,7 +239,7 @@ class TestTaskViewSetManager(TestViewSetBase):
         del data["title"]
 
         response = self.update(key=self.task.id, data=data)
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
         assert response_dict["executor"] == self.user_3.id
@@ -261,7 +260,7 @@ class TestTaskViewSetManager(TestViewSetBase):
 
         response = self.create(data)
 
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
 
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response_dict["title"] == data["title"]
@@ -311,14 +310,14 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
     def test_list(self):
         response = self.list()
         assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = json.loads(response.content.decode("utf-8"))[0]
+        response_dict = response.json()[0]
         assert response_dict["title"] == self.task_attributes["title"]
         assert response_dict["author"]["email"] == self.user_2_attributes["email"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.task_attributes["id"])
         assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
         assert response_dict["title"] == self.task_attributes["title"]
         assert response_dict["author"]["email"] == self.user_2_attributes["email"]
 
@@ -339,7 +338,6 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
 
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
-        print(self.task.executor)
         response = self.update(
             key=id,
             data={
@@ -350,7 +348,7 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
 
         self.task_attributes["id"] = id
 
-        response_dict = json.loads(response.content.decode("utf-8"))
+        response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
         assert response_dict["state"] == Task.States.IN_DEVELOPMENT
