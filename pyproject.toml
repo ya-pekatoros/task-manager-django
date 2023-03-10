@@ -15,6 +15,7 @@ drf-yasg = {extras = ["validation"], version = "^1.21.5"}
 djangorestframework-simplejwt = "^5.2.2"
 coverage = "6.5.0"
 coveralls = "^3.3.1"
+rollbar = "^0.16.3"
 
 [tool.poetry.dev-dependencies]
 
