@@ -1,10 +1,22 @@
 import django_filters
 from rest_framework import viewsets
 from django.db.models import Q
+from rest_framework import permissions
 
 
 from .models import User, Task, Tag
-from .serializers import UserSerializer, TaskSerializer, TagSerializer
+from .serializers import (
+    UserSerializer,
+    UserSelfSerializer,
+    UserAdminSerializer,
+    TaskSerializer,
+    TaskPostSerializer,
+    TaskPutExecutorSerializer,
+    TaskPutAuthorSerializer,
+    TagSerializer,
+)
+
+from .permissions import TaskBase, UserBase, TagBase
 
 
 class UserFilter(django_filters.FilterSet):
@@ -17,13 +29,25 @@ class UserFilter(django_filters.FilterSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.order_by("id")
-    serializer_class = UserSerializer
     filterset_class = UserFilter
+    permission_classes = [permissions.IsAuthenticated, UserBase]
+
+    def get_serializer_class(self):
+        if self.request.method in ["PUT", "PATCH"]:
+            if self.request.user == self.get_object() and self.request.user.is_staff:
+                return UserSerializer
+            if self.request.user.is_staff:
+                return UserAdminSerializer
+            if self.request.user == self.get_object():
+                return UserSelfSerializer
+
+        return UserSerializer
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.prefetch_related("task_set").order_by("id")
     serializer_class = TagSerializer
+    permission_classes = [permissions.IsAuthenticated, TagBase]
 
 
 class TaskFilter(django_filters.FilterSet):
@@ -61,10 +85,24 @@ class TaskFilter(django_filters.FilterSet):
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = (
-        Task.objects
-        .select_related("author", "executor")
+        Task.objects.select_related("author", "executor")
         .prefetch_related("tags")
         .order_by("id")
     )
-    serializer_class = TaskSerializer
+
     filterset_class = TaskFilter
+    permission_classes = [permissions.IsAuthenticated, TaskBase]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return TaskPostSerializer
+        if self.request.method in ["PUT", "PATCH"]:
+            if (
+                self.request.user == getattr(self.get_object(), "author")
+                or self.request.user.is_staff
+            ):
+                return TaskPutAuthorSerializer
+            if self.request.user == getattr(self.get_object(), "executor"):
+                return TaskPutExecutorSerializer
+
+        return TaskSerializer

@@ -38,7 +38,7 @@ class Task(models.Model):
     def __str__(self):
         return self.title
 
-    def clean(self):
+    def check_status_change(self):
         if self.pk:
             old_task = Task.objects.get(pk=self.pk)
             if self.state != old_task.state:
@@ -71,3 +71,10 @@ class Task(models.Model):
                         raise ValidationError("Invalid status transition")
                 elif old_task.state == self.States.ARCHIVED:
                     raise ValidationError("Invalid status transition")
+
+    def clean(self):
+        self.check_status_change()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
