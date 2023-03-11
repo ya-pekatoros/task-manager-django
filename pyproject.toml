@@ -17,6 +17,7 @@ coverage = "6.5.0"
 coveralls = "^3.3.1"
 rollbar = "^0.16.3"
 python-dotenv = "^1.0.0"
+newrelic = "^8.7.0"
 
 [tool.poetry.dev-dependencies]
 

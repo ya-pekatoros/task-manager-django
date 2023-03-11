@@ -19,7 +19,10 @@ services:
       DATABASE_PASSWORD: postgres
       DATABASE_HOST: db
       DATABASE_PORT: 5432
-    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+      
+    command: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
 
   db:
     image: postgres:11.4
