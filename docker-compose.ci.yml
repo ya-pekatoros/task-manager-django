@@ -3,6 +3,8 @@ version: "3.7"
 x-app-config: &app-config
   DJANGO_ENV: dev
   DJANGO_SECRET_KEY: secret_key
+  DJ_SECRET_KEY: ${DJ_SECRET_KEY}
+  ROLLBAR_ACCESS_TOKEN: ${ROLLBAR_ACCESS_TOKEN}
 
 x-db-config: &db-config
   DATABASE_NAME: postgres
