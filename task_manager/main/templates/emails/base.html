@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body style="background-color: #F4F6FA; padding: 20px;">
+<div style="width:90%;max-width:700px; background-color: #FFF;margin: 20px auto; padding: 3%;
+border: 1px solid #E0E0E1; border-radius: 10px;">
+    <img src="{{ domain }}{% static 'img/logo.png' %}" width="120px" alt="project logo">
+    <hr style="
+        background-color: #E0E0E1;
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #e0e0e1;
+        margin: 1em 0;
+        color:#E0E0E1;">
+    {% block content %}
+    {% endblock %}
+    <br>
+    <br>
+    <hr>
+    <br>
+    <div style="padding: 12px 24px 12px 24px; background-color: #F4F6FA; border-radius: 8px; width:100%;max-width: 650px;">
+    <p style="font-size: 16px;
+        line-height: 24px;
+        color: black;">Some text about project.</p>
+    <a style="font-size: 16px;
+        line-height: 24px; color:#FF5722" href="https://example.com/">Learn More</a>
+    </div>
+    <p style="text-align: center;
+        font-size: 16px;
+        line-height: 24px;
+        color: black;">© 2021 Project name</p>
+</div>
+</body>
+</html>
