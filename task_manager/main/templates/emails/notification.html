@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 style="font-size:20px;">{{ inviter_name }} is inviting you to join Project!</h1>
+    <p style="
+        font-size: 16px;
+        line-height: 24px;
+        color: black;">Hi {{ invite.first_name }} {{ invite.last_name }}!</p>
+    <p style="
+        font-size: 16px;
+        line-height: 24px;
+        color: black;">The way people work is changing and the way clients engage that work is changing. With project you
+        find work that meets your lifestyle. Part time, full time or whatever works for you!
+    </p>
+    <p style="
+        font-size: 16px;
+        line-height: 24px;
+        color: black;">Simply create your profile outlining your experience and availability and start making more
+        money, getting great project work at higher pay rates. Come check it out!</p>
+    <p style="text-align: center;
+        font-size: 16px;
+        line-height: 24px;">
+        <a href="{{ domain }}/sign-up?token={{ token }}&first_name={{ invite.first_name }}&last_name={{ invite.last_name }}&email={{ invite.email }}"
+           target="_blank"
+           style="
+        background-color: #FF5722;
+        padding: 10px 15%;
+        border-radius: 10px;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+">Join Project</a>
+    </p>
+    <p style="font-size: 16px;
+        line-height: 24px;">If you are having trouble with the button, please click this link:</p>
+    <a style="font-size: 16px;
+        line-height: 24px;color:#ff5722;"
+       href="{{ domain }}/sign-up?token={{ token }}&first_name={{ invite.first_name }}&last_name={{ invite.last_name }}&email={{ invite.email }}"
+       target="_blank">{{ domain }}/sign-up?token={{ token }}&first_name={{ invite.first_name }}&last_name={{ invite.last_name }}&email={{ invite.email }}</a>
+{% endblock %}
