@@ -11,9 +11,6 @@ class TestViewSetBase(APITestCase):
     client: APIClient = None
     basename: str
     user_attributes: Dict[str, Union[str, int, List[int]]] = None
-    task_attributes: Dict[str, Union[str, int, List[int]]] = None
-    tag_attributes: Dict[str, Union[str, int, List[int]]] = None
-    task_tags: List[Tag] = None
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -22,23 +19,6 @@ class TestViewSetBase(APITestCase):
             cls.user = cls.create_api_user(cls.user_attributes)
         else:
             cls.user = None
-
-        if cls.tag_attributes:
-            cls.tag = cls.create_tag(cls.tag_attributes)
-        else:
-            cls.tag = None
-
-        if cls.task_attributes:
-            cls.task = cls.create_task(cls.task_attributes)
-            if cls.tag:
-                cls.task.tags.set(
-                    [
-                        cls.tag,
-                    ]
-                )
-        else:
-            cls.task = None
-
         cls.client = APIClient()
 
     @staticmethod
@@ -71,17 +51,6 @@ class TestViewSetBase(APITestCase):
     @staticmethod
     def login(client, user):
         return client.force_login(user)
-
-    # def find_(self, parameter, value, dictionary):
-    #     if parameter in dictionary:
-    #         if dictionary[parameter] == value:
-    #             return True
-    #     for key in dictionary:
-    #         if isinstance(dictionary[key], dict):
-    #             result = self.find_key(parameter, value, dictionary[key])
-    #             if result:
-    #                 return True
-    #     return False
 
     def create(self, data: dict, args: List[Union[str, int]] = None) -> dict:
         self.login(self.client, self.user)

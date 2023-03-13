@@ -14,41 +14,65 @@ class TestUserViewSetAdmin(TestViewSetBase):
         "role": User.Roles.ADMIN,
     }
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.user_attributes["id"] = cls.user.id
+        cls.user_attributes["role"] = "admin"
+        del cls.user_attributes["password"]
+
     def test_create(self):
         response = self.create(data={})
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_list(self):
         response = self.list()
+
+        expected_response = self.expected_details(response, self.user_attributes)
+
         assert response.status_code == HTTPStatus.OK, response.content
-        del self.user_attributes["password"]
-        self.user_attributes["role"] = "admin"
-        expected_response = self.expected_details(
-            response, self.user_attributes
-        )
         assert response.json()[0] == expected_response
-        self.user_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.user_attributes["id"])
-        self.user_attributes["role"] = "admin"
+
         assert response.json() == self.user_attributes
 
     def test_update(self):
-        self.user_attributes["name"] = "Test-admin-updated"
-        self.user_attributes["role"] = User.Roles.MANAGER
-        id = self.user_attributes["id"]
-        del self.user_attributes["id"]
-        response = self.update(key=id, data=self.user_attributes)
+        data = self.user_attributes.copy()
+        data["username"] = "test-manager"
+        data["password"] = "12345"
+        data["role"] = User.Roles.MANAGER
+        del data["id"]
+        another_user = self.create_api_user(data)
+
+        response = self.update(
+            key=another_user.id,
+            data={"name": "Test-admin-updated", "role": "developer"},
+        )
+
+        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+
+        response = self.update(key=another_user.id, data={"role": "developer"})
+
         assert response.status_code == HTTPStatus.OK, response.content
-        self.user_attributes["role"] = "manager"
-        self.user_attributes["id"] = id
-        assert response.json() == self.user_attributes
+        assert response.json() == {"role": "developer"}
 
     def test_delete(self):
-        object_data = self.list().json()[0]
-        id = object_data["id"]
+        another_user_attributes = {
+            "username": "Test-manager",
+            "name": "Test-manager",
+            "surname": "Test-manager",
+            "email": "test-manager@test.com",
+            "password": "12345",
+            "role": User.Roles.MANAGER,
+        }
+        another_user = self.create_api_user(another_user_attributes)
+        id = another_user.id
+
         response = self.delete(key=id)
+
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
 
 
@@ -63,30 +87,38 @@ class TestUserViewSetDeveloper(TestViewSetBase):
         "role": User.Roles.DEVELOPER,
     }
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.user_attributes["id"] = cls.user.id
+        cls.user_attributes["role"] = "developer"
+        del cls.user_attributes["password"]
+
     def test_list(self):
         response = self.list()
+
         assert response.status_code == HTTPStatus.OK, response.content
-        del self.user_attributes["password"]
-        self.user_attributes["role"] = "developer"
-        expected_response = self.expected_details(
-            response, self.user_attributes
-        )
+
+        expected_response = self.expected_details(response, self.user_attributes)
+
         assert response.json()[0] == expected_response
-        self.user_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.user_attributes["id"])
+
         assert response.json() == self.user_attributes
 
     def test_create(self):
         response = self.create(data={})
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_update_role(self):
         self.user_attributes["name"] = "Test-developer-updated"
         self.user_attributes["role"] = User.Roles.ADMIN
-        id = self.user_attributes["id"]
-        response = self.update(key=id, data=self.user_attributes)
+
+        response = self.update(key=self.user.id, data=self.user_attributes)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_update_another(self):
@@ -98,12 +130,14 @@ class TestUserViewSetDeveloper(TestViewSetBase):
             "password": "12345",
             "role": User.Roles.MANAGER,
         }
-        user = self.create_api_user(another_user_attributes)
-        id = user.id
+        another_user = self.create_api_user(another_user_attributes)
+        id = another_user.id
         another_user_attributes["name"] = "Test-manager-updated"
         del another_user_attributes["password"]
         del another_user_attributes["role"]
+
         response = self.update(key=id, data=another_user_attributes)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_update_self(self):
@@ -111,10 +145,15 @@ class TestUserViewSetDeveloper(TestViewSetBase):
         id = self.user_attributes["id"]
         del self.user_attributes["id"]
         del self.user_attributes["role"]
+
         response = self.update(key=id, data=self.user_attributes)
+
         assert response.status_code == HTTPStatus.OK, response.content
+
         self.user_attributes["id"] = id
+
         assert response.json() == self.user_attributes
+
         self.user_attributes["role"] = "developer"
 
     def test_delete(self):
@@ -133,26 +172,32 @@ class TestUserViewSetManager(TestViewSetBase):
         "role": User.Roles.MANAGER,
     }
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.user_attributes["id"] = cls.user.id
+        cls.user_attributes["role"] = "manager"
+        del cls.user_attributes["password"]
+
     def test_list(self):
         response = self.list()
         assert response.status_code == HTTPStatus.OK, response.content
-        del self.user_attributes["password"]
-        self.user_attributes["role"] = "manager"
-        expected_response = self.expected_details(
-            response, self.user_attributes
-        )
+
+        expected_response = self.expected_details(response, self.user_attributes)
         assert response.json()[0] == expected_response
-        self.user_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
         response = self.retrieve(key=self.user_attributes["id"])
+
         assert response.json() == self.user_attributes
 
     def test_update_role(self):
         self.user_attributes["name"] = "Test-manager-updated"
         self.user_attributes["role"] = User.Roles.ADMIN
         id = self.user_attributes["id"]
+
         response = self.update(key=id, data=self.user_attributes)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_update_self(self):
@@ -160,10 +205,15 @@ class TestUserViewSetManager(TestViewSetBase):
         id = self.user_attributes["id"]
         del self.user_attributes["id"]
         del self.user_attributes["role"]
+
         response = self.update(key=id, data=self.user_attributes)
+
         assert response.status_code == HTTPStatus.OK, response.content
+
         self.user_attributes["id"] = id
+
         assert response.json() == self.user_attributes
+
         self.user_attributes["role"] = "manager"
 
     def test_update_another(self):
@@ -175,16 +225,19 @@ class TestUserViewSetManager(TestViewSetBase):
             "password": "12345",
             "role": User.Roles.DEVELOPER,
         }
-        user = self.create_api_user(another_user_attributes)
-        id = user.id
+        another_user = self.create_api_user(another_user_attributes)
+        id = another_user.id
         another_user_attributes["name"] = "Test-developer-updated"
         del another_user_attributes["password"]
         del another_user_attributes["role"]
+
         response = self.update(key=id, data=another_user_attributes)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_delete(self):
         response = self.delete(key=1)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
 
