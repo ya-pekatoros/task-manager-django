@@ -40,45 +40,67 @@ class TestTagViewSetAdmin(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.ADMIN,
     }
-    tag_attributes = {"title": "bug"}
 
     def test_create(self):
-        data = self.tag_attributes
-        response = self.create(data=data)
-        data["tasks"] = []
-        expected_response = self.expected_details(response, data)
+        tag_attributes = {"title": "bug"}
+
+        response = self.create(data=tag_attributes)
+
+        tag_attributes["tasks"] = []
+        expected_response = self.expected_details(response, tag_attributes)
+
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response.json() == expected_response
 
     def test_list(self):
+        tag_attributes = {"title": "bug"}
+        self.create_tag(tag_attributes)
+        tag_attributes["tasks"] = []
+
         response = self.list()
+
         assert response.status_code == HTTPStatus.OK, response.content
-        self.tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response, self.tag_attributes)
+
+        expected_response = self.expected_details(response, tag_attributes)
+
         assert response.json()[0] == expected_response
-        self.tag_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
-        response = self.retrieve(key=self.tag_attributes["id"])
-        assert response.json() == self.tag_attributes
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+        tag_attributes["tasks"] = []
+
+        response = self.retrieve(key=tag.id)
+
+        expected_response = self.expected_details(response, tag_attributes)
+
+        assert response.json() == expected_response
 
     def test_update(self):
-        self.tag_attributes["title"] = "bug-updated"
-        id = self.tag_attributes["id"]
-        del self.tag_attributes["id"]
-        response = self.update(key=id, data=self.tag_attributes)
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+
+        tag_attributes["tasks"] = []
+        tag_attributes["title"] = "bug-updated"
+
+        response = self.update(key=tag.id, data=tag_attributes)
+
         assert response.status_code == HTTPStatus.OK, response.content
-        self.tag_attributes["id"] = id
-        assert response.json() == self.tag_attributes
+
+        expected_response = self.expected_details(response, tag_attributes)
+
+        assert response.json() == expected_response
 
     def test_delete(self):
-        object_data = self.list().json()[0]
-        id = object_data["id"]
-        response = self.delete(key=id)
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+
+        response = self.delete(key=tag.id)
+
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
 
 
-class TestTagViewSetAdmin(TestViewSetBase):
+class TestTagViewSetDeveloper(TestViewSetBase):
     basename = "tags"
     user_attributes = {
         "username": "Test-developer",
@@ -88,40 +110,59 @@ class TestTagViewSetAdmin(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.DEVELOPER,
     }
-    tag_attributes = {"title": "bug"}
 
     def test_create(self):
-        data = self.tag_attributes
-        response = self.create(data=data)
-        data["tasks"] = []
-        expected_response = self.expected_details(response, data)
+        tag_attributes = {"title": "bug"}
+
+        response = self.create(data=tag_attributes)
+
+        tag_attributes["tasks"] = []
+        expected_response = self.expected_details(response, tag_attributes)
+
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response.json() == expected_response
 
     def test_list(self):
+        tag_attributes = {"title": "bug"}
+        self.create_tag(tag_attributes)
+        tag_attributes["tasks"] = []
+
         response = self.list()
+
         assert response.status_code == HTTPStatus.OK, response.content
-        self.tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response, self.tag_attributes)
+
+        expected_response = self.expected_details(response, tag_attributes)
+
         assert response.json()[0] == expected_response
-        self.tag_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
-        response = self.retrieve(key=self.tag_attributes["id"])
-        assert response.json() == self.tag_attributes
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+        tag_attributes["tasks"] = []
+
+        response = self.retrieve(key=tag.id)
+
+        expected_response = self.expected_details(response, tag_attributes)
+
+        assert response.json() == expected_response
 
     def test_update(self):
-        self.tag_attributes["title"] = "bug-updated"
-        id = self.tag_attributes["id"]
-        del self.tag_attributes["id"]
-        response = self.update(key=id, data=self.tag_attributes)
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+
+        tag_attributes["tasks"] = []
+        tag_attributes["title"] = "bug-updated"
+
+        response = self.update(key=tag.id, data=tag_attributes)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
-        self.tag_attributes["id"] = id
 
     def test_delete(self):
-        object_data = self.list().json()[0]
-        id = object_data["id"]
-        response = self.delete(key=id)
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+
+        response = self.delete(key=tag.id)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
 
@@ -138,35 +179,55 @@ class TestTagViewSetManager(TestViewSetBase):
     tag_attributes = {"title": "bug"}
 
     def test_create(self):
-        data = self.tag_attributes
-        response = self.create(data=data)
-        data["tasks"] = []
-        expected_response = self.expected_details(response, data)
+        tag_attributes = {"title": "bug"}
+
+        response = self.create(data=tag_attributes)
+
+        tag_attributes["tasks"] = []
+        expected_response = self.expected_details(response, tag_attributes)
+
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response.json() == expected_response
 
     def test_list(self):
+        tag_attributes = {"title": "bug"}
+        self.create_tag(tag_attributes)
+        tag_attributes["tasks"] = []
+
         response = self.list()
+
         assert response.status_code == HTTPStatus.OK, response.content
-        self.tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response, self.tag_attributes)
+
+        expected_response = self.expected_details(response, tag_attributes)
+
         assert response.json()[0] == expected_response
-        self.tag_attributes["id"] = expected_response["id"]
 
     def test_retrieve(self):
-        response = self.retrieve(key=self.tag_attributes["id"])
-        assert response.json() == self.tag_attributes
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+        tag_attributes["tasks"] = []
+
+        response = self.retrieve(key=tag.id)
+
+        expected_response = self.expected_details(response, tag_attributes)
+
+        assert response.json() == expected_response
 
     def test_update(self):
-        self.tag_attributes["title"] = "bug-updated"
-        id = self.tag_attributes["id"]
-        del self.tag_attributes["id"]
-        response = self.update(key=id, data=self.tag_attributes)
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+
+        tag_attributes["tasks"] = []
+        tag_attributes["title"] = "bug-updated"
+
+        response = self.update(key=tag.id, data=tag_attributes)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
-        self.tag_attributes["id"] = id
 
     def test_delete(self):
-        object_data = self.list().json()[0]
-        id = object_data["id"]
-        response = self.delete(key=id)
+        tag_attributes = {"title": "bug"}
+        tag = self.create_tag(tag_attributes)
+
+        response = self.delete(key=tag.id)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content

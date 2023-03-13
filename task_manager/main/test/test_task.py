@@ -40,14 +40,6 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.ADMIN,
     }
-    tag_attributes = {"title": "bug"}
-    task_attributes = {
-        "title": "Test-task-1",
-        "description": "Test",
-        "deadline": "2023-07-05",
-        "state": Task.States.NEW,
-        "priority": Task.Priorities.MIDDLE,
-    }
     user_2_attributes = {
         "username": "Test-developer",
         "name": "Test-developer",
@@ -56,7 +48,6 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.DEVELOPER,
     }
-
     user_3_attributes = {
         "username": "Test-manager",
         "name": "Test-manager",
@@ -70,59 +61,94 @@ class TestTaskViewSetAdmin(TestViewSetBase):
     def setUpTestData(cls):
         cls.user_2 = cls.create_api_user(cls.user_2_attributes)
         cls.user_3 = cls.create_api_user(cls.user_3_attributes)
-        cls.task_attributes["author"] = cls.user_3
-        cls.task_attributes["executor"] = cls.user_2
         super().setUpTestData()
 
     def test_list(self):
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        self.create_task(task_attributes)
+
         response = self.list()
-        assert response.status_code == HTTPStatus.OK, response.content
         response_dict = response.json()[0]
-        assert response_dict["title"] == self.task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_3_attributes["email"]
-        self.task_attributes["id"] = response_dict["id"]
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response_dict["title"] == task_attributes["title"]
+        assert response_dict["author"]["email"] == self.user_3.email
 
     def test_retrieve(self):
-        response = self.retrieve(key=self.task_attributes["id"])
-        assert response.status_code == HTTPStatus.OK, response.content
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        task = self.create_task(task_attributes)
+
+        response = self.retrieve(key=task.id)
         response_dict = response.json()
-        assert response_dict["title"] == self.task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_3_attributes["email"]
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response_dict["title"] == task_attributes["title"]
+        assert response_dict["author"]["email"] == self.user_3.email
 
     def test_delete(self):
-        object_data = self.list().json()[0]
-        id = object_data["id"]
-        response = self.delete(key=id)
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        task = self.create_task(task_attributes)
+
+        response = self.delete(key=task.id)
+
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
 
     def test_update(self):
-        self.task_attributes["title"] = "Test-task-updated"
-        self.task_attributes["author"] = self.user_2.id
-        self.task_attributes["executor"] = self.user_3.id
-
-        id = self.task_attributes["id"]
-        del self.task_attributes["id"]
-
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        task = self.create_task(task_attributes)
+        tag = Tag.objects.create(**{"title": "bug"})
         tag_2 = Tag.objects.create(**{"title": "feature"})
 
-        self.task_attributes["tags"] = [self.tag, tag_2]
+        task_attributes["title"] = "Test-task-updated"
+        task_attributes["author"] = self.user_2.id
+        task_attributes["executor"] = self.user_3.id
+        task_attributes["tags"] = [tag, tag_2]
 
-        response = self.update(key=id, data=self.task_attributes)
-
-        self.task_attributes["id"] = id
+        response = self.update(key=task.id, data=task_attributes)
         response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
         assert (
-            Task.objects.get(id=id).author == self.user_3
-        )  # author is still manager (the author is always
-        assert (
-            response_dict["title"] == self.task_attributes["title"]
-        )  # the one who created the task)
+            Task.objects.get(id=task.id).author == self.user_3
+        )  # author is still manager (the author is always the one who created the task)
+        assert response_dict["title"] == task_attributes["title"]
         assert response_dict["executor"] == self.user_3.id
-        assert response_dict["tags"] == [self.tag.title, tag_2.title]
+        assert response_dict["tags"] == [tag.title, tag_2.title]
 
     def test_create(self):
+        tag = Tag.objects.create(**{"title": "bug"})
         data = {
             "title": "Test-task-2",
             "description": "Test",
@@ -132,7 +158,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
             "author": self.user_2.id,
             "executor": self.user_3.id,
             "tags": [
-                self.tag,
+                tag,
             ],
         }
 
@@ -142,7 +168,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
 
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response_dict["tags"] == [
-            self.tag.title,
+            tag.title,
         ]
         assert (
             response_dict["author"] == self.user.id
@@ -159,14 +185,6 @@ class TestTaskViewSetManager(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.MANAGER,
     }
-    tag_attributes = {"title": "bug"}
-    task_attributes = {
-        "title": "Test-task-1",
-        "description": "Test",
-        "deadline": "2023-07-05",
-        "state": Task.States.NEW,
-        "priority": Task.Priorities.MIDDLE,
-    }
     user_2_attributes = {
         "username": "Test-developer",
         "name": "Test-developer",
@@ -175,7 +193,6 @@ class TestTaskViewSetManager(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.DEVELOPER,
     }
-
     user_3_attributes = {
         "username": "Test-manager-1",
         "name": "Test-manager",
@@ -189,63 +206,103 @@ class TestTaskViewSetManager(TestViewSetBase):
     def setUpTestData(cls):
         cls.user_2 = cls.create_api_user(cls.user_2_attributes)
         cls.user_3 = cls.create_api_user(cls.user_3_attributes)
-        cls.task_attributes["executor"] = cls.user_2
         super().setUpTestData()
-        cls.task_attributes["author"] = cls.user
-        cls.task.author = cls.user
-        cls.task.save()
-        cls.task_attributes["id"] = cls.task.id
 
     def test_list(self):
-        response = self.list()
-        assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = response.json()[0]
-        assert response_dict["title"] == self.task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_attributes["email"]
-
-    def test_retrieve(self):
-        response = self.retrieve(key=self.task_attributes["id"])
-        assert response.status_code == HTTPStatus.OK, response.content
-        response_dict = response.json()
-        assert response_dict["title"] == self.task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_attributes["email"]
-
-    def test_delete(self):
-        object_data = self.list().json()[0]
-        id = object_data["id"]
-        response = self.delete(key=id)
-        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
-
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! обновить!!!!!!!! проверить что можем менять исполнителя, не можем менять автора
-    # не можем менять название?
-
-    def test_update(self):
-        tag_2 = Tag.objects.create(**{"title": "feature"})
-
-        data = {
-            "title": "Test-task-updated",
-            "executor": self.user_3.id,
+        task_attributes = {
+            "title": "Test-task-1",
             "description": "Test",
-            "deadline": self.task_attributes["deadline"],
-            "priority": self.task_attributes["priority"],
-            "tags": [self.tag, tag_2],
-            "state": self.task_attributes["state"],
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user,
+            "executor": self.user_2,
         }
 
-        response = self.update(key=self.task.id, data=data)
+        self.create_task(task_attributes)
+
+        response = self.list()
+        response_dict = response.json()[0]
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response_dict["title"] == task_attributes["title"]
+        assert response_dict["author"]["email"] == self.user.email
+
+    def test_retrieve(self):
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user,
+            "executor": self.user_2,
+        }
+
+        task = self.create_task(task_attributes)
+
+        response = self.retrieve(key=task.id)
+
+        response_dict = response.json()
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response_dict["title"] == task_attributes["title"]
+        assert response_dict["author"]["email"] == self.user.email
+
+    def test_delete(self):
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user,
+            "executor": self.user_2,
+        }
+
+        task = self.create_task(task_attributes)
+
+        response = self.delete(key=task.id)
 
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
-        del data["title"]
+    def test_update(self):
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user,
+            "executor": self.user_2,
+        }
 
-        response = self.update(key=self.task.id, data=data)
+        task = self.create_task(task_attributes)
+
+        tag = Tag.objects.create(**{"title": "bug"})
+        tag_2 = Tag.objects.create(**{"title": "feature"})
+
+        task_attributes["tags"] = [tag, tag_2]
+        task_attributes["executor"] = self.user_3.id
+        task_attributes["description"] = "Test"
+        task_attributes["title"] = "Test-task-updated"
+
+        response = self.update(key=task.id, data=task_attributes)
+
+        assert response.status_code == HTTPStatus.FORBIDDEN, response.content
+
+        del task_attributes["title"]
+        del task_attributes["author"]
+
+        response = self.update(key=task.id, data=task_attributes)
         response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
         assert response_dict["executor"] == self.user_3.id
-        assert response_dict["tags"] == [self.tag.title, tag_2.title]
+        assert response_dict["tags"] == [tag.title, tag_2.title]
 
     def test_create(self):
+        tag = Tag.objects.create(**{"title": "bug"})
         data = {
             "title": "Test-task-2",
             "description": "Test",
@@ -254,7 +311,7 @@ class TestTaskViewSetManager(TestViewSetBase):
             "priority": Task.Priorities.MIDDLE,
             "executor": self.user_3.id,
             "tags": [
-                self.tag,
+                tag,
             ],
         }
 
@@ -265,7 +322,7 @@ class TestTaskViewSetManager(TestViewSetBase):
         assert response.status_code == HTTPStatus.CREATED, response.content
         assert response_dict["title"] == data["title"]
         assert response_dict["tags"] == [
-            self.tag.title,
+            tag.title,
         ]
         assert response_dict["author"] == self.user.id
 
@@ -280,14 +337,6 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
         "password": "12345",
         "role": User.Roles.DEVELOPER,
     }
-    tag_attributes = {"title": "bug"}
-    task_attributes = {
-        "title": "Test-task-1",
-        "description": "Test",
-        "deadline": "2023-07-05",
-        "state": Task.States.NEW,
-        "priority": Task.Priorities.MIDDLE,
-    }
     user_2_attributes = {
         "username": "Test-manager",
         "name": "Test-manager",
@@ -300,59 +349,100 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
     @classmethod
     def setUpTestData(cls):
         cls.user_2 = cls.create_api_user(cls.user_2_attributes)
-        cls.task_attributes["author"] = cls.user_2
         super().setUpTestData()
-        cls.task_attributes["executor"] = cls.user
-        cls.task_attributes["id"] = cls.task.id
-        cls.task.executor = cls.user
-        cls.task.save()
 
     def test_list(self):
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_2,
+            "executor": self.user,
+        }
+
+        self.create_task(task_attributes)
+
         response = self.list()
-        assert response.status_code == HTTPStatus.OK, response.content
         response_dict = response.json()[0]
-        assert response_dict["title"] == self.task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_2_attributes["email"]
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response_dict["title"] == task_attributes["title"]
+        assert response_dict["author"]["email"] == self.user_2.email
 
     def test_retrieve(self):
-        response = self.retrieve(key=self.task_attributes["id"])
-        assert response.status_code == HTTPStatus.OK, response.content
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_2,
+            "executor": self.user,
+        }
+
+        task = self.create_task(task_attributes)
+
+        response = self.retrieve(key=task.id)
         response_dict = response.json()
-        assert response_dict["title"] == self.task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_2_attributes["email"]
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response_dict["title"] == task_attributes["title"]
+        assert response_dict["author"]["email"] == self.user_2.email
 
     def test_delete(self):
-        response = self.delete(key=self.task_attributes["id"])
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_2,
+            "executor": self.user,
+        }
+
+        task = self.create_task(task_attributes)
+
+        response = self.delete(key=task.id)
+
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_update(self):
-        self.task_attributes["title"] = "Test-task-updated"
+        task_attributes = {
+            "title": "Test-task-1",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_2,
+            "executor": self.user,
+        }
 
-        id = self.task_attributes["id"]
-        del self.task_attributes["id"]
+        task = self.create_task(task_attributes)
 
+        task_attributes["title"] = "Test-task-updated"
+        tag = Tag.objects.create(**{"title": "bug"})
         tag_2 = Tag.objects.create(**{"title": "feature"})
-        self.task_attributes["tags"] = [self.tag, tag_2]
+        task_attributes["tags"] = [tag, tag_2]
 
-        response = self.update(key=id, data=self.task_attributes)
+        response = self.update(key=task.id, data=task_attributes)
 
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
         response = self.update(
-            key=id,
+            key=task.id,
             data={
                 "state": Task.States.IN_DEVELOPMENT,
-                "tags": [self.tag.title, tag_2.title],
+                "tags": [tag.title, tag_2.title],
             },
         )
-
-        self.task_attributes["id"] = id
 
         response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
         assert response_dict["state"] == Task.States.IN_DEVELOPMENT
-        assert response_dict["tags"] == [self.tag.title, tag_2.title]
+        assert response_dict["tags"] == [tag.title, tag_2.title]
 
     def test_create(self):
         response = self.create(data={})
