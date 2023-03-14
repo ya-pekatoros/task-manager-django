@@ -6,7 +6,7 @@ from task_manager.main.models import Task
 
 def send_assign_notification(task_id: int) -> None:
     task = Task.objects.get(pk=task_id)
-    assignee = task.assignee
+    assignee = task.executor
     send_html_email(
         subject="You've assigned a task.",
         template="notification.html",
