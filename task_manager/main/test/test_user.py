@@ -27,12 +27,23 @@ class TestUserViewSetAdmin(TestViewSetBase):
         assert response.status_code == HTTPStatus.FORBIDDEN, response.content
 
     def test_list(self):
-        response = self.list()
+        user_2_attributes = {
+            "username": "Test-admin-2",
+            "name": "Test-admin",
+            "surname": "Test-admin",
+            "email": "test-admin@test.com",
+            "password": "12345",
+            "role": User.Roles.ADMIN,
+        }
+        user_2 = self.create_api_user(user_2_attributes)
+        del user_2_attributes["password"]
+        user_2_attributes["id"] = user_2.id
 
-        expected_response = self.expected_details(response, self.user_attributes)
+        response = self.list()
+        expected_response = [self.user_attributes, user_2_attributes]
 
         assert response.status_code == HTTPStatus.OK, response.content
-        assert response.json()[0] == expected_response
+        assert response.json() == expected_response
 
     def test_retrieve(self):
         response = self.retrieve(key=self.user_attributes["id"])
@@ -72,8 +83,11 @@ class TestUserViewSetAdmin(TestViewSetBase):
         id = another_user.id
 
         response = self.delete(key=id)
+        response_list = self.list()
+        expected_response_list = [self.user_attributes]
 
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
+        assert response_list.json() == expected_response_list
 
 
 class TestUserViewSetDeveloper(TestViewSetBase):
@@ -95,13 +109,23 @@ class TestUserViewSetDeveloper(TestViewSetBase):
         del cls.user_attributes["password"]
 
     def test_list(self):
+        user_2_attributes = {
+            "username": "Test-admin-2",
+            "name": "Test-admin",
+            "surname": "Test-admin",
+            "email": "test-admin@test.com",
+            "password": "12345",
+            "role": User.Roles.ADMIN,
+        }
+        user_2 = self.create_api_user(user_2_attributes)
+        del user_2_attributes["password"]
+        user_2_attributes["id"] = user_2.id
+
         response = self.list()
+        expected_response = [self.user_attributes, user_2_attributes]
 
         assert response.status_code == HTTPStatus.OK, response.content
-
-        expected_response = self.expected_details(response, self.user_attributes)
-
-        assert response.json()[0] == expected_response
+        assert response.json() == expected_response
 
     def test_retrieve(self):
         response = self.retrieve(key=self.user_attributes["id"])
@@ -180,11 +204,23 @@ class TestUserViewSetManager(TestViewSetBase):
         del cls.user_attributes["password"]
 
     def test_list(self):
-        response = self.list()
-        assert response.status_code == HTTPStatus.OK, response.content
+        user_2_attributes = {
+            "username": "Test-admin-2",
+            "name": "Test-admin",
+            "surname": "Test-admin",
+            "email": "test-admin@test.com",
+            "password": "12345",
+            "role": User.Roles.ADMIN,
+        }
+        user_2 = self.create_api_user(user_2_attributes)
+        del user_2_attributes["password"]
+        user_2_attributes["id"] = user_2.id
 
-        expected_response = self.expected_details(response, self.user_attributes)
-        assert response.json()[0] == expected_response
+        response = self.list()
+        expected_response = [self.user_attributes, user_2_attributes]
+
+        assert response.status_code == HTTPStatus.OK, response.content
+        assert response.json() == expected_response
 
     def test_retrieve(self):
         response = self.retrieve(key=self.user_attributes["id"])
