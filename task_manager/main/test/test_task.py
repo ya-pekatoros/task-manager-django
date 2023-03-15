@@ -1,6 +1,7 @@
 from task_manager.main.test.base import TestViewSetBase
 from task_manager.main.models import User, Task, Tag
 from http import HTTPStatus
+import datetime
 
 
 class TestTaskViewSetNonAutorized(TestViewSetBase):
@@ -57,6 +58,8 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         "role": User.Roles.MANAGER,
     }
 
+    today = datetime.date.today().strftime("%Y-%m-%d")
+
     @classmethod
     def setUpTestData(cls):
         cls.user_2 = cls.create_api_user(cls.user_2_attributes)
@@ -73,14 +76,62 @@ class TestTaskViewSetAdmin(TestViewSetBase):
             "author": self.user_3,
             "executor": self.user_2,
         }
-        self.create_task(task_attributes)
+        task = self.create_task(task_attributes)
+        task_expected_attr = {
+            "id": task.id,
+            "author": self.user_3_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_attributes["state"].value,
+            "priority": task_attributes["priority"].value,
+        }
+        task_attributes.update(task_expected_attr)
+
+        del task_attributes["author"]["password"]
+        task_attributes["author"]["role"] = self.user_3_attributes["role"].value
+        task_attributes["author"]["id"] = self.user_3.id
+
+        del task_attributes["executor"]["password"]
+        task_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_attributes["executor"]["id"] = self.user_2.id
+
+        task_2_attributes = {
+            "title": "Test-task-2",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        task_2 = self.create_task(task_2_attributes)
+        task_2_expected_attr = {
+            "id": task_2.id,
+            "author": self.user_3_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_2_attributes["state"].value,
+            "priority": task_2_attributes["priority"].value,
+        }
+        task_2_attributes.update(task_2_expected_attr)
+
+        del task_2_attributes["author"]["password"]
+        task_2_attributes["author"]["role"] = self.user_3_attributes["role"].value
+        task_2_attributes["author"]["id"] = self.user_3.id
+
+        del task_2_attributes["executor"]["password"]
+        task_2_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_2_attributes["executor"]["id"] = self.user_2.id
 
         response = self.list()
-        response_dict = response.json()[0]
+        expected_response = [task_attributes, task_2_attributes]
 
         assert response.status_code == HTTPStatus.OK, response.content
-        assert response_dict["title"] == task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_3.email
+        assert response.json() == expected_response
 
     def test_retrieve(self):
         task_attributes = {
@@ -112,10 +163,44 @@ class TestTaskViewSetAdmin(TestViewSetBase):
             "executor": self.user_2,
         }
         task = self.create_task(task_attributes)
+        task_2_attributes = {
+            "title": "Test-task-2",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        task_2 = self.create_task(task_2_attributes)
+        task_2_expected_attr = {
+            "id": task_2.id,
+            "author": self.user_3_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_2_attributes["state"].value,
+            "priority": task_2_attributes["priority"].value,
+        }
+        task_2_attributes.update(task_2_expected_attr)
+
+        del task_2_attributes["author"]["password"]
+        task_2_attributes["author"]["role"] = self.user_3_attributes["role"].value
+        task_2_attributes["author"]["id"] = self.user_3.id
+
+        del task_2_attributes["executor"]["password"]
+        task_2_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_2_attributes["executor"]["id"] = self.user_2.id
 
         response = self.delete(key=task.id)
+        response_list = self.list()
+        expected_response_list = [
+            task_2_attributes,
+        ]
 
         assert response.status_code == HTTPStatus.NO_CONTENT, response.content
+        assert response_list.json() == expected_response_list
 
     def test_update(self):
         task_attributes = {
@@ -208,6 +293,8 @@ class TestTaskViewSetManager(TestViewSetBase):
         cls.user_3 = cls.create_api_user(cls.user_3_attributes)
         super().setUpTestData()
 
+    today = datetime.date.today().strftime("%Y-%m-%d")
+
     def test_list(self):
         task_attributes = {
             "title": "Test-task-1",
@@ -215,18 +302,65 @@ class TestTaskViewSetManager(TestViewSetBase):
             "deadline": "2023-07-05",
             "state": Task.States.NEW,
             "priority": Task.Priorities.MIDDLE,
-            "author": self.user,
+            "author": self.user_3,
             "executor": self.user_2,
         }
+        task = self.create_task(task_attributes)
+        task_expected_attr = {
+            "id": task.id,
+            "author": self.user_3_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_attributes["state"].value,
+            "priority": task_attributes["priority"].value,
+        }
+        task_attributes.update(task_expected_attr)
 
-        self.create_task(task_attributes)
+        del task_attributes["author"]["password"]
+        task_attributes["author"]["role"] = self.user_3_attributes["role"].value
+        task_attributes["author"]["id"] = self.user_3.id
+
+        del task_attributes["executor"]["password"]
+        task_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_attributes["executor"]["id"] = self.user_2.id
+
+        task_2_attributes = {
+            "title": "Test-task-2",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_3,
+            "executor": self.user_2,
+        }
+        task_2 = self.create_task(task_2_attributes)
+        task_2_expected_attr = {
+            "id": task_2.id,
+            "author": self.user_3_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_2_attributes["state"].value,
+            "priority": task_2_attributes["priority"].value,
+        }
+        task_2_attributes.update(task_2_expected_attr)
+
+        del task_2_attributes["author"]["password"]
+        task_2_attributes["author"]["role"] = self.user_3_attributes["role"].value
+        task_2_attributes["author"]["id"] = self.user_3.id
+
+        del task_2_attributes["executor"]["password"]
+        task_2_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_2_attributes["executor"]["id"] = self.user_2.id
 
         response = self.list()
-        response_dict = response.json()[0]
+        expected_response = [task_attributes, task_2_attributes]
 
         assert response.status_code == HTTPStatus.OK, response.content
-        assert response_dict["title"] == task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user.email
+        assert response.json() == expected_response
 
     def test_retrieve(self):
         task_attributes = {
@@ -346,6 +480,8 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
         "role": User.Roles.MANAGER,
     }
 
+    today = datetime.date.today().strftime("%Y-%m-%d")
+
     @classmethod
     def setUpTestData(cls):
         cls.user_2 = cls.create_api_user(cls.user_2_attributes)
@@ -359,17 +495,64 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
             "state": Task.States.NEW,
             "priority": Task.Priorities.MIDDLE,
             "author": self.user_2,
-            "executor": self.user,
+            "executor": self.user_2,
         }
+        task = self.create_task(task_attributes)
+        task_expected_attr = {
+            "id": task.id,
+            "author": self.user_2_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_attributes["state"].value,
+            "priority": task_attributes["priority"].value,
+        }
+        task_attributes.update(task_expected_attr)
 
-        self.create_task(task_attributes)
+        del task_attributes["author"]["password"]
+        task_attributes["author"]["role"] = self.user_2_attributes["role"].value
+        task_attributes["author"]["id"] = self.user_2.id
+
+        del task_attributes["executor"]["password"]
+        task_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_attributes["executor"]["id"] = self.user_2.id
+
+        task_2_attributes = {
+            "title": "Test-task-2",
+            "description": "Test",
+            "deadline": "2023-07-05",
+            "state": Task.States.NEW,
+            "priority": Task.Priorities.MIDDLE,
+            "author": self.user_2,
+            "executor": self.user_2,
+        }
+        task_2 = self.create_task(task_2_attributes)
+        task_2_expected_attr = {
+            "id": task_2.id,
+            "author": self.user_2_attributes.copy(),
+            "executor": self.user_2_attributes.copy(),
+            "created_at": self.today,
+            "edited_at": self.today,
+            "tags": [],
+            "state": task_2_attributes["state"].value,
+            "priority": task_2_attributes["priority"].value,
+        }
+        task_2_attributes.update(task_2_expected_attr)
+
+        del task_2_attributes["author"]["password"]
+        task_2_attributes["author"]["role"] = self.user_2_attributes["role"].value
+        task_2_attributes["author"]["id"] = self.user_2.id
+
+        del task_2_attributes["executor"]["password"]
+        task_2_attributes["executor"]["role"] = self.user_2_attributes["role"].value
+        task_2_attributes["executor"]["id"] = self.user_2.id
 
         response = self.list()
-        response_dict = response.json()[0]
+        expected_response = [task_attributes, task_2_attributes]
 
         assert response.status_code == HTTPStatus.OK, response.content
-        assert response_dict["title"] == task_attributes["title"]
-        assert response_dict["author"]["email"] == self.user_2.email
+        assert response.json() == expected_response
 
     def test_retrieve(self):
         task_attributes = {
