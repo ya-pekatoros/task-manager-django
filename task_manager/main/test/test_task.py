@@ -40,6 +40,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         "email": "test-admin@test.com",
         "password": "12345",
         "role": User.Roles.ADMIN,
+        "avatar_picture": None,
     }
     user_2_attributes = {
         "username": "Test-developer",
@@ -48,6 +49,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         "email": "test-developer@test.com",
         "password": "12345",
         "role": User.Roles.DEVELOPER,
+        "avatar_picture": None,
     }
     user_3_attributes = {
         "username": "Test-manager",
@@ -56,6 +58,7 @@ class TestTaskViewSetAdmin(TestViewSetBase):
         "email": "test-manager@test.com",
         "password": "12345",
         "role": User.Roles.MANAGER,
+        "avatar_picture": None,
     }
 
     today = datetime.date.today().strftime("%Y-%m-%d")
@@ -269,6 +272,7 @@ class TestTaskViewSetManager(TestViewSetBase):
         "email": "test-manager@test.com",
         "password": "12345",
         "role": User.Roles.MANAGER,
+        "avatar_picture": None,
     }
     user_2_attributes = {
         "username": "Test-developer",
@@ -277,6 +281,7 @@ class TestTaskViewSetManager(TestViewSetBase):
         "email": "test-developer@test.com",
         "password": "12345",
         "role": User.Roles.DEVELOPER,
+        "avatar_picture": None,
     }
     user_3_attributes = {
         "username": "Test-manager-1",
@@ -285,6 +290,7 @@ class TestTaskViewSetManager(TestViewSetBase):
         "email": "test-manager@test.com",
         "password": "12345",
         "role": User.Roles.MANAGER,
+        "avatar_picture": None,
     }
 
     @classmethod
@@ -470,6 +476,7 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
         "email": "test-developer@test.com",
         "password": "12345",
         "role": User.Roles.DEVELOPER,
+        "avatar_picture": None,
     }
     user_2_attributes = {
         "username": "Test-manager",
@@ -478,6 +485,7 @@ class TestTaskViewSetDeveloper(TestViewSetBase):
         "email": "test-manager@test.com",
         "password": "12345",
         "role": User.Roles.MANAGER,
+        "avatar_picture": None,
     }
 
     today = datetime.date.today().strftime("%Y-%m-%d")

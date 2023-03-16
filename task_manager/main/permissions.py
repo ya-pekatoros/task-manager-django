@@ -53,7 +53,14 @@ class UserBase(permissions.BasePermission):
             return True
 
         if request.user == obj and request.user.is_staff:
-            allowed_fields = ["username", "name", "surname", "email", "role"]
+            allowed_fields = [
+                "username",
+                "name",
+                "surname",
+                "email",
+                "role",
+                "avatar_picture",
+            ]
             if all(field in allowed_fields for field in request.data):
                 return True
 
@@ -63,7 +70,7 @@ class UserBase(permissions.BasePermission):
                 return True
 
         if request.user == obj:
-            allowed_fields = ["username", "name", "surname", "email"]
+            allowed_fields = ["username", "name", "surname", "email", "avatar_picture"]
             if all(field in allowed_fields for field in request.data):
                 return True
 

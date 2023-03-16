@@ -12,6 +12,7 @@ class TestUserViewSetAdmin(TestViewSetBase):
         "email": "test-admin@test.com",
         "password": "12345",
         "role": User.Roles.ADMIN,
+        "avatar_picture": None,
     }
 
     @classmethod
@@ -34,6 +35,7 @@ class TestUserViewSetAdmin(TestViewSetBase):
             "email": "test-admin@test.com",
             "password": "12345",
             "role": User.Roles.ADMIN,
+            "avatar_picture": None,
         }
         user_2 = self.create_api_user(user_2_attributes)
         del user_2_attributes["password"]
@@ -55,6 +57,7 @@ class TestUserViewSetAdmin(TestViewSetBase):
         data["username"] = "test-manager"
         data["password"] = "12345"
         data["role"] = User.Roles.MANAGER
+        data["avatar_picture"] = ""
         del data["id"]
         another_user = self.create_api_user(data)
 
@@ -78,6 +81,7 @@ class TestUserViewSetAdmin(TestViewSetBase):
             "email": "test-manager@test.com",
             "password": "12345",
             "role": User.Roles.MANAGER,
+            "avatar_picture": None,
         }
         another_user = self.create_api_user(another_user_attributes)
         id = another_user.id
@@ -99,6 +103,7 @@ class TestUserViewSetDeveloper(TestViewSetBase):
         "email": "test-developer@test.com",
         "password": "12345",
         "role": User.Roles.DEVELOPER,
+        "avatar_picture": None,
     }
 
     @classmethod
@@ -116,6 +121,7 @@ class TestUserViewSetDeveloper(TestViewSetBase):
             "email": "test-admin@test.com",
             "password": "12345",
             "role": User.Roles.ADMIN,
+            "avatar_picture": None,
         }
         user_2 = self.create_api_user(user_2_attributes)
         del user_2_attributes["password"]
@@ -140,6 +146,7 @@ class TestUserViewSetDeveloper(TestViewSetBase):
     def test_update_role(self):
         self.user_attributes["name"] = "Test-developer-updated"
         self.user_attributes["role"] = User.Roles.ADMIN
+        self.user_attributes["avatar_picture"] = ""
 
         response = self.update(key=self.user.id, data=self.user_attributes)
 
@@ -153,10 +160,12 @@ class TestUserViewSetDeveloper(TestViewSetBase):
             "email": "test-manager@test.com",
             "password": "12345",
             "role": User.Roles.MANAGER,
+            "avatar_picture": None,
         }
         another_user = self.create_api_user(another_user_attributes)
         id = another_user.id
         another_user_attributes["name"] = "Test-manager-updated"
+        another_user_attributes["avatar_picture"] = ""
         del another_user_attributes["password"]
         del another_user_attributes["role"]
 
@@ -166,6 +175,7 @@ class TestUserViewSetDeveloper(TestViewSetBase):
 
     def test_update_self(self):
         self.user_attributes["name"] = "Test-developer-updated"
+        self.user_attributes["avatar_picture"] = ""
         id = self.user_attributes["id"]
         del self.user_attributes["id"]
         del self.user_attributes["role"]
@@ -175,6 +185,7 @@ class TestUserViewSetDeveloper(TestViewSetBase):
         assert response.status_code == HTTPStatus.OK, response.content
 
         self.user_attributes["id"] = id
+        self.user_attributes["avatar_picture"] = None
 
         assert response.json() == self.user_attributes
 
@@ -194,6 +205,7 @@ class TestUserViewSetManager(TestViewSetBase):
         "email": "test-manager@test.com",
         "password": "12345",
         "role": User.Roles.MANAGER,
+        "avatar_picture": None,
     }
 
     @classmethod
@@ -211,6 +223,7 @@ class TestUserViewSetManager(TestViewSetBase):
             "email": "test-admin@test.com",
             "password": "12345",
             "role": User.Roles.ADMIN,
+            "avatar_picture": None,
         }
         user_2 = self.create_api_user(user_2_attributes)
         del user_2_attributes["password"]
@@ -230,6 +243,7 @@ class TestUserViewSetManager(TestViewSetBase):
     def test_update_role(self):
         self.user_attributes["name"] = "Test-manager-updated"
         self.user_attributes["role"] = User.Roles.ADMIN
+        self.user_attributes["avatar_picture"] = ""
         id = self.user_attributes["id"]
 
         response = self.update(key=id, data=self.user_attributes)
@@ -247,6 +261,7 @@ class TestUserViewSetManager(TestViewSetBase):
         assert response.status_code == HTTPStatus.OK, response.content
 
         self.user_attributes["id"] = id
+        self.user_attributes["avatar_picture"] = None
 
         assert response.json() == self.user_attributes
 
@@ -260,10 +275,12 @@ class TestUserViewSetManager(TestViewSetBase):
             "email": "test-developer@test.com",
             "password": "12345",
             "role": User.Roles.DEVELOPER,
+            "avatar_picture": None,
         }
         another_user = self.create_api_user(another_user_attributes)
         id = another_user.id
         another_user_attributes["name"] = "Test-developer-updated"
+        another_user_attributes["avatar_picture"] = ""
         del another_user_attributes["password"]
         del another_user_attributes["role"]
 
