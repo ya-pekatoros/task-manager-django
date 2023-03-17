@@ -2,9 +2,9 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from typing import Union, List, Dict
-from factory.django import DjangoModelFactory
-from factory import Faker
-from django.contrib.auth.hashers import make_password
+import tempfile
+import os
+from django.conf import settings
 
 from task_manager.main.models import User, Task, Tag
 
@@ -14,6 +14,19 @@ class TestViewSetBase(APITestCase):
     client: APIClient = None
     basename: str
     user_attributes: Dict[str, Union[str, int, List[int]]] = None
+
+    @classmethod
+    def setUp(cls):
+        cls.tmpdir = tempfile.mkdtemp()
+        settings.MEDIA_ROOT = cls.tmpdir
+
+    @classmethod
+    def tearDown(cls):
+        for filename in os.listdir(cls.tmpdir):
+            file_path = os.path.join(cls.tmpdir, filename)
+            os.remove(file_path)
+
+        os.rmdir(cls.tmpdir)
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -46,10 +59,15 @@ class TestViewSetBase(APITestCase):
 
     @staticmethod
     def expected_details(entity: bytes, attributes: dict):
-        entity_decoded = entity.json()
-        if isinstance(entity_decoded, list):
-            entity_decoded = entity_decoded[0]
-        return {**attributes, "id": entity_decoded["id"]}
+        return {**attributes, "id": entity["id"]}
+
+    @staticmethod
+    def expected_details_user(entity: bytes, attributes: dict):
+        return {
+            **attributes,
+            "id": entity["id"],
+            "avatar_picture": entity["avatar_picture"],
+        }
 
     @staticmethod
     def login(client, user):
@@ -79,12 +97,3 @@ class TestViewSetBase(APITestCase):
         self.login(self.client, self.user)
         response = self.client.delete(self.detail_url(key))
         return response
-
-
-class UserFactory(DjangoModelFactory):
-    username = Faker("user_name")
-    email = Faker("email")
-    password = make_password("password")
-
-    class Meta:
-        model = User

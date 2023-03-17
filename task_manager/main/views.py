@@ -2,6 +2,9 @@ import django_filters
 from rest_framework import viewsets
 from django.db.models import Q
 from rest_framework import permissions
+from rest_framework.response import Response
+from django.conf import settings
+import os
 
 
 from .models import User, Task, Tag
@@ -9,6 +12,7 @@ from .serializers import (
     UserSerializer,
     UserSelfSerializer,
     UserAdminSerializer,
+    UserSelfAdminSerializer,
     TaskSerializer,
     TaskPostSerializer,
     TaskPutExecutorSerializer,
@@ -36,13 +40,29 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in ["PUT", "PATCH"]:
             if self.request.user == self.get_object() and self.request.user.is_staff:
-                return UserSerializer
+                return UserSelfAdminSerializer
             if self.request.user.is_staff:
                 return UserAdminSerializer
             if self.request.user == self.get_object():
                 return UserSelfSerializer
 
         return UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        delete_avatar = serializer.validated_data.pop("delete_avatar", False)
+        if delete_avatar:
+            if user.avatar_picture:
+                full_path = os.path.join(settings.MEDIA_ROOT, user.avatar_picture.name)
+                if os.path.exists(full_path):
+                    os.remove(full_path)
+                user.avatar_picture.delete(save=False)
+
+        serializer.save()
+        return Response(serializer.data)
 
 
 class TagViewSet(viewsets.ModelViewSet):
