@@ -36,10 +36,42 @@ class UserSelfSerializer(serializers.ModelSerializer):
             FileExtensionValidator(["jpeg", "jpg", "png"]),
         ],
     )
+    delete_avatar = serializers.BooleanField(default=False)
 
     class Meta:
         model = User
-        fields = ("id", "username", "name", "surname", "email", "avatar_picture")
+        fields = (
+            "id",
+            "username",
+            "name",
+            "surname",
+            "email",
+            "avatar_picture",
+            "delete_avatar",
+        )
+
+
+class UserSelfAdminSerializer(serializers.ModelSerializer):
+    avatar_picture = serializers.FileField(
+        required=False,
+        validators=[
+            FileMaxSizeValidator(settings.UPLOAD_MAX_SIZES["avatar_picture"]),
+            FileExtensionValidator(["jpeg", "jpg", "png"]),
+        ],
+    )
+    delete_avatar = serializers.BooleanField(default=False)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "name",
+            "surname",
+            "email",
+            "avatar_picture",
+            "delete_avatar",
+        )
 
 
 class UserAdminSerializer(serializers.ModelSerializer):

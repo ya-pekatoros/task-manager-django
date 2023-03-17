@@ -45,12 +45,13 @@ class TestTagViewSetAdmin(TestViewSetBase):
         tag_attributes = {"title": "bug"}
 
         response = self.create(data=tag_attributes)
+        response_dict = response.json()
 
         tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
         assert response.status_code == HTTPStatus.CREATED, response.content
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_list(self):
         tag_attributes = {"title": "bug"}
@@ -74,10 +75,11 @@ class TestTagViewSetAdmin(TestViewSetBase):
         tag_attributes["tasks"] = []
 
         response = self.retrieve(key=tag.id)
+        response_dict = response.json()
 
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_update(self):
         tag_attributes = {"title": "bug"}
@@ -87,12 +89,13 @@ class TestTagViewSetAdmin(TestViewSetBase):
         tag_attributes["title"] = "bug-updated"
 
         response = self.update(key=tag.id, data=tag_attributes)
+        response_dict = response.json()
 
         assert response.status_code == HTTPStatus.OK, response.content
 
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_delete(self):
         tag_attributes = {"title": "bug"}
@@ -127,12 +130,13 @@ class TestTagViewSetDeveloper(TestViewSetBase):
         tag_attributes = {"title": "bug"}
 
         response = self.create(data=tag_attributes)
+        response_dict = response.json()
 
         tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
         assert response.status_code == HTTPStatus.CREATED, response.content
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_list(self):
         tag_attributes = {"title": "bug"}
@@ -156,10 +160,11 @@ class TestTagViewSetDeveloper(TestViewSetBase):
         tag_attributes["tasks"] = []
 
         response = self.retrieve(key=tag.id)
+        response_dict = response.json()
 
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_update(self):
         tag_attributes = {"title": "bug"}
@@ -197,12 +202,13 @@ class TestTagViewSetManager(TestViewSetBase):
         tag_attributes = {"title": "bug"}
 
         response = self.create(data=tag_attributes)
+        response_dict = response.json()
 
         tag_attributes["tasks"] = []
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
         assert response.status_code == HTTPStatus.CREATED, response.content
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_list(self):
         tag_attributes = {"title": "bug"}
@@ -226,10 +232,11 @@ class TestTagViewSetManager(TestViewSetBase):
         tag_attributes["tasks"] = []
 
         response = self.retrieve(key=tag.id)
+        response_dict = response.json()
 
-        expected_response = self.expected_details(response, tag_attributes)
+        expected_response = self.expected_details(response_dict, tag_attributes)
 
-        assert response.json() == expected_response
+        assert response_dict == expected_response
 
     def test_update(self):
         tag_attributes = {"title": "bug"}
