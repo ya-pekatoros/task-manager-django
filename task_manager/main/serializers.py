@@ -54,7 +54,9 @@ class TaskPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = (
+            "id",
             "title",
+            "author",
             "executor",
             "description",
             "deadline",
@@ -77,6 +79,28 @@ class TaskPutAuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = (
+            "executor",
+            "description",
+            "deadline",
+            "priority",
+            "state",
+            "tags",
+        )
+
+    def update(self, instance, validated_data):
+        validated_data["author"] = instance.author
+        return super().update(instance, validated_data)
+
+
+class TaskPutAdminSerializer(serializers.ModelSerializer):
+    executor = User.username
+    tags = serializers.SlugRelatedField(
+        many=True, slug_field="title", queryset=Tag.objects.all()
+    )
+
+    class Meta:
+        model = Task
+        fields = (
             "title",
             "executor",
             "description",
@@ -85,6 +109,10 @@ class TaskPutAuthorSerializer(serializers.ModelSerializer):
             "state",
             "tags",
         )
+
+    def update(self, instance, validated_data):
+        validated_data["author"] = instance.author
+        return super().update(instance, validated_data)
 
 
 class TaskPutExecutorSerializer(serializers.ModelSerializer):
