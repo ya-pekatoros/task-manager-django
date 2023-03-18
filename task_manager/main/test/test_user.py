@@ -309,8 +309,6 @@ class TestUserViewSetAvatars(TestViewSetBase):
         del new_user_attr["id"]
         del new_user_attr["role"]
         new_user_attr["avatar_picture"].name = "bad_extension.pdf"
-        print(new_user_attr["avatar_picture"])
-        print(new_user_attr["avatar_picture"].name)
         new_user_attr["delete_avatar"] = False
 
         response = self.update(key=id, data=new_user_attr)
