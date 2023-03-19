@@ -4,8 +4,8 @@ x-app-config: &app-config
   DJANGO_ENV: dev
   DJANGO_SECRET_KEY: secret_key
   DJ_SECRET_KEY: ${DJ_SECRET_KEY}
-  EMAIL_USE_SSL: false
-  EMAIL_USE_TLS: true
+  EMAIL_USE_SSL: 'false'
+  EMAIL_USE_TLS: 'true'
   EMAIL_HOST: smtp.gmail.com
   EMAIL_HOST_USER: ${EMAIL_HOST_USER}
   EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
