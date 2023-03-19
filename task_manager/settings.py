@@ -155,6 +155,10 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
     MEDIA_URL = "/media/"
 
+UPLOAD_MAX_SIZES: dict[str, int] = {
+    "avatar_picture": 1 * 1024 * 1024,
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 

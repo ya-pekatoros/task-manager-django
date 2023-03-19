@@ -1,18 +1,45 @@
 from rest_framework import serializers
+from django.conf import settings
 
 from .models import User, Task, Tag
+from .validators import FileMaxSizeValidator
+from django.core.validators import FileExtensionValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar_picture = serializers.FileField(
+        required=False,
+        validators=[
+            FileMaxSizeValidator(settings.UPLOAD_MAX_SIZES["avatar_picture"]),
+            FileExtensionValidator(["jpeg", "jpg", "png"]),
+        ],
+    )
+
     class Meta:
         model = User
-        fields = ("id", "username", "name", "surname", "email", "role")
+        fields = (
+            "id",
+            "username",
+            "name",
+            "surname",
+            "email",
+            "role",
+            "avatar_picture",
+        )
 
 
 class UserSelfSerializer(serializers.ModelSerializer):
+    avatar_picture = serializers.FileField(
+        required=False,
+        validators=[
+            FileMaxSizeValidator(settings.UPLOAD_MAX_SIZES["avatar_picture"]),
+            FileExtensionValidator(["jpeg", "jpg", "png"]),
+        ],
+    )
+
     class Meta:
         model = User
-        fields = ("id", "username", "name", "surname", "email")
+        fields = ("id", "username", "name", "surname", "email", "avatar_picture")
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
