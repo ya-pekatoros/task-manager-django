@@ -55,16 +55,6 @@ class TestViewSetBase(APITestCase):
     def login(client, user):
         return client.force_login(user)
 
-    # def find_(self, parameter, value, dictionary):
-    #     if parameter in dictionary:
-    #         if dictionary[parameter] == value:
-    #             return True
-    #     for key in dictionary:
-    #         if isinstance(dictionary[key], dict):
-    #             result = self.find_key(parameter, value, dictionary[key])
-    #             if result:
-    #                 return True
-    #     return False
 
     def create(self, data: dict, args: List[Union[str, int]] = None) -> dict:
         self.login(self.client, self.user)
