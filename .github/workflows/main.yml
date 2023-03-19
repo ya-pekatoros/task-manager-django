@@ -17,6 +17,13 @@ jobs:
         env:
           COVERAGE: true
           RAILS_ENV: test
+          DJ_SECRET_KEY: ${DJ_SECRET_KEY}
+          EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+          EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+          DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL}
+          NEW_RELIC_ACCOUNT_ID: ${NEW_RELIC_ACCOUNT_ID}
+          NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+          ROLLBAR_ACCESS_TOKEN: ${ROLLBAR_ACCESS_TOKEN}
         run: docker-compose --file docker-compose.ci.yml run --rm api make test
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
