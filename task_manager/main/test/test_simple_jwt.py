@@ -6,6 +6,7 @@ from datetime import timedelta
 
 from task_manager.main.test.base import UserFactory
 
+
 class TestJWTAuth(APITestCase):
     token_url = reverse("token_obtain_pair")
     refresh_token_url = reverse("token_refresh")
@@ -20,7 +21,9 @@ class TestJWTAuth(APITestCase):
         if not username:
             user = self.create_user()
             username = user.username
-        return client.post(self.token_url, data={"username": username, "password": password})
+        return client.post(
+            self.token_url, data={"username": username, "password": password}
+        )
 
     def refresh_token_request(self, refresh_token: str):
         client = self.client_class()
@@ -45,7 +48,7 @@ class TestJWTAuth(APITestCase):
         response = self.refresh_token_request(refresh_token)
         assert response.status_code == HTTPStatus.OK
         assert response.json()["access"]
-    
+
     def test_token_auth(self) -> None:
         client = self.client_class()
         response = client.get(self.any_api_url)
@@ -56,7 +59,7 @@ class TestJWTAuth(APITestCase):
         client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
         response = client.get(self.any_api_url)
         assert response.status_code == HTTPStatus.OK
-    
+
     def test_refresh_lives_lower_than_one_day(self) -> None:
         with freeze_time() as frozen_time:
             refresh_token = self.get_refresh_token()
