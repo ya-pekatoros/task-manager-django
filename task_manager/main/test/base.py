@@ -2,6 +2,9 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from typing import Union, List, Dict
+from factory.django import DjangoModelFactory
+from factory import Faker
+from django.contrib.auth.hashers import make_password
 
 from task_manager.main.models import User, Task, Tag
 
@@ -76,3 +79,11 @@ class TestViewSetBase(APITestCase):
         self.login(self.client, self.user)
         response = self.client.delete(self.detail_url(key))
         return response
+
+class UserFactory(DjangoModelFactory):
+    username = Faker('user_name')
+    email = Faker('email')
+    password = make_password('password')
+
+    class Meta:
+        model = User
