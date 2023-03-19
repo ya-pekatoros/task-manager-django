@@ -26,7 +26,7 @@ jobs:
           ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         run: docker-compose --file docker-compose.ci.yml run --rm api make test
       - name: Upload coverage data to coveralls.io
-        run: coveralls --service=github
+        run: docker-compose --file docker-compose.ci.yml run --rm api coveralls --service=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: Run tests
