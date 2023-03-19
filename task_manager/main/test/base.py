@@ -5,9 +5,6 @@ from typing import Union, List, Dict
 from factory.django import DjangoModelFactory
 from factory import Faker
 from django.contrib.auth.hashers import make_password
-from factory.django import DjangoModelFactory
-from factory import Faker
-from django.contrib.auth.hashers import make_password
 
 from task_manager.main.models import User, Task, Tag
 
@@ -58,7 +55,6 @@ class TestViewSetBase(APITestCase):
     def login(client, user):
         return client.force_login(user)
 
-
     def create(self, data: dict, args: List[Union[str, int]] = None) -> dict:
         self.login(self.client, self.user)
         response = self.client.post(self.list_url(args), data=data)
@@ -83,14 +79,6 @@ class TestViewSetBase(APITestCase):
         self.login(self.client, self.user)
         response = self.client.delete(self.detail_url(key))
         return response
-
-class UserFactory(DjangoModelFactory):
-    username = Faker('user_name')
-    email = Faker('email')
-    password = make_password('password')
-
-    class Meta:
-        model = User
 
 class UserFactory(DjangoModelFactory):
     username = Faker('user_name')
