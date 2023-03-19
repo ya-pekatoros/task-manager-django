@@ -27,7 +27,7 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: docker-compose --file docker-compose.ci.yml run --rm api make test
       - name: Upload coverage data to coveralls.io
-        run: docker-compose --file docker-compose.ci.yml run --rm api coveralls --service=github
+        run: docker-compose --file docker-compose.ci.yml run --rm api coveralls
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
           DJ_SECRET_KEY: ${{ secrets.DJ_SECRET_KEY }}
