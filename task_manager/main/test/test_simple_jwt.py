@@ -6,7 +6,6 @@ from datetime import timedelta
 
 from task_manager.main.test.base import UserFactory
 
-
 class TestJWTAuth(APITestCase):
     token_url = reverse("token_obtain_pair")
     refresh_token_url = reverse("token_refresh")
