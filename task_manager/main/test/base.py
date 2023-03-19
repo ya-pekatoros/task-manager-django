@@ -55,7 +55,6 @@ class TestViewSetBase(APITestCase):
     def login(client, user):
         return client.force_login(user)
 
-
     def create(self, data: dict, args: List[Union[str, int]] = None) -> dict:
         self.login(self.client, self.user)
         response = self.client.post(self.list_url(args), data=data)
@@ -81,10 +80,11 @@ class TestViewSetBase(APITestCase):
         response = self.client.delete(self.detail_url(key))
         return response
 
+
 class UserFactory(DjangoModelFactory):
-    username = Faker('user_name')
-    email = Faker('email')
-    password = make_password('password')
+    username = Faker("user_name")
+    email = Faker("email")
+    password = make_password("password")
 
     class Meta:
         model = User
