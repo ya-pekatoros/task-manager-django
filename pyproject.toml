@@ -20,6 +20,7 @@ python-dotenv = "^1.0.0"
 newrelic = "^8.7.0"
 django-storages = "^1.13.2"
 boto3 = "^1.26.90"
+pillow = "^9.4.0"
 
 
 [tool.poetry.dev-dependencies]
