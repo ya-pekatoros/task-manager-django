@@ -2,8 +2,9 @@ from django.core import mail
 from django.template.loader import render_to_string
 
 from task_manager.main.models import Task
+from task_manager.celery import app
 
-
+@app.task
 def send_assign_notification(task_id: int) -> None:
     task = Task.objects.get(pk=task_id)
     assignee = task.executor
@@ -14,7 +15,7 @@ def send_assign_notification(task_id: int) -> None:
         recipients=[assignee.email],
     )
 
-
+@app.task
 def send_html_email(
     subject: str, template: str, context: dict, recipients: list[str]
 ) -> None:
