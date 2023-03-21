@@ -3,10 +3,13 @@ from rest_framework import viewsets
 from django.db.models import Q
 from rest_framework import permissions
 from rest_framework.response import Response
-from django.conf import settings
-import os
+from typing import cast
 
-
+from rest_framework_extensions.mixins import NestedViewSetMixin
+from task_manager.main.services.single_resource import (
+    SingleResourceMixin,
+    SingleResourceUpdateMixin,
+)
 from .models import User, Task, Tag
 from .serializers import (
     UserSerializer,
@@ -126,3 +129,48 @@ class TaskViewSet(viewsets.ModelViewSet):
                 return TaskPutExecutorSerializer
 
         return TaskSerializer
+
+
+class TaskTagsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TagSerializer
+
+    permission_classes = [permissions.IsAuthenticated, TagBase]
+
+    def get_queryset(self):
+        task_id = self.kwargs["parent_lookup_task_id"]
+        return Task.objects.get(pk=task_id).tags.all()
+
+
+class UserTasksViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = (
+        Task.objects.order_by("id")
+        .select_related("author", "executor")
+        .prefetch_related("tags")
+    )
+    serializer_class = TaskSerializer
+
+    filterset_class = TaskFilter
+    permission_classes = [permissions.IsAuthenticated, TaskBase]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return TaskPostSerializer
+        if self.request.method in ["PUT", "PATCH"]:
+            if self.request.user == getattr(self.get_object(), "author"):
+                return TaskPutAuthorSerializer
+            if self.request.user.is_staff:
+                return TaskPutAdminSerializer
+            if self.request.user == getattr(self.get_object(), "executor"):
+                return TaskPutExecutorSerializer
+
+        return TaskSerializer
+
+
+class CurrentUserViewSet(
+    SingleResourceMixin, SingleResourceUpdateMixin, viewsets.ModelViewSet
+):
+    serializer_class = UserSerializer
+    queryset = User.objects.order_by("id")
+
+    def get_object(self) -> User:
+        return cast(User, self.request.user)

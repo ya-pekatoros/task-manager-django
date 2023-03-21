@@ -2,9 +2,11 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from typing import Union, List, Dict
+from rest_framework.response import Response
 import tempfile
 import os
 from django.conf import settings
+from http import HTTPStatus
 
 from task_manager.main.models import User, Task, Tag
 
@@ -18,6 +20,7 @@ class TestViewSetBase(APITestCase):
     @classmethod
     def setUp(cls):
         cls.tmpdir = tempfile.mkdtemp()
+        settings.MEDIA_URL = cls.tmpdir
         settings.MEDIA_ROOT = cls.tmpdir
 
     @classmethod
@@ -97,3 +100,22 @@ class TestViewSetBase(APITestCase):
         self.login(self.client, self.user)
         response = self.client.delete(self.detail_url(key))
         return response
+
+    def request_single_resource(self, data: dict = None) -> Response:
+        self.login(self.client, self.user)
+        return self.client.get(self.list_url(), data=data)
+
+    def single_resource(self, data: dict = None) -> dict:
+        response = self.request_single_resource(data)
+        assert response.status_code == HTTPStatus.OK
+        return response.data
+
+    def request_patch_single_resource(self, attributes: dict) -> Response:
+        self.login(self.client, self.user)
+        url = self.list_url()
+        return self.client.patch(url, data=attributes)
+
+    def patch_single_resource(self, attributes: dict) -> dict:
+        response = self.request_patch_single_resource(attributes)
+        assert response.status_code == HTTPStatus.OK, response.content
+        return response.data
