@@ -4,16 +4,18 @@ from django.template.loader import render_to_string
 from task_manager.main.models import Task
 from task_manager.celery import app
 
+
 @app.task
 def send_assign_notification(task_id: int) -> None:
     task = Task.objects.get(pk=task_id)
     assignee = task.executor
-    send_html_email(
+    return send_html_email(
         subject="You've assigned a task.",
         template="notification.html",
         context={"task": task},
         recipients=[assignee.email],
     )
+
 
 @app.task
 def send_html_email(

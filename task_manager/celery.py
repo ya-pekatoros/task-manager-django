@@ -1,4 +1,3 @@
-import os
 from celery import Celery
 
 app = Celery("task_manager")
