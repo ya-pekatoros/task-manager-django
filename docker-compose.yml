@@ -13,6 +13,7 @@ services:
       - db
       - celery
       - redis
+      - flower
 
     environment: &api-environment
       DJANGO_ENV: dev
@@ -49,5 +50,17 @@ services:
       <<: *api-environment
     volumes: 
       - .:/app
+    depends_on:
+      - redis
+
+  flower:
+    build: .
+    command: celery --app=task_manager --broker=redis://redis:6379/0 flower --port=5555
+    environment:
+      <<: *api-environment
+    volumes: 
+      - .:/app
+    ports:
+      - "5555:5555"
     depends_on:
       - redis
