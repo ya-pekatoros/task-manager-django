@@ -158,6 +158,9 @@ UPLOAD_MAX_SIZES: dict[str, int] = {
     "avatar_picture": 1 * 1024 * 1024,
 }
 
+CELERY_BROKER_URL = f"redis://{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/0"
+CELERY_INCLUDE = ["task_manager.main.tasks"]
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
