@@ -18,6 +18,7 @@ class TestUserTasksViewSet(TestViewSetBase):
     def detail_url(cls, key: Union[int, str]) -> str:
         return reverse(f"{cls.basename}-detail", args=[*key])
 
+
     def test_list(self) -> None:
         task_attributes = {
             "title": "Test-task-1",
@@ -30,34 +31,8 @@ class TestUserTasksViewSet(TestViewSetBase):
         }
         task = self.create_task(task_attributes)
 
-        task_expected_attr = {
-            "id": task.id,
-            "author": self.user_attributes.copy(),
-            "executor": self.user_attributes.copy(),
-            "created_at": self.today,
-            "edited_at": self.today,
-            "tags": [],
-            "state": task_attributes["state"].value,
-            "priority": task_attributes["priority"].value,
-        }
-        task_attributes.update(task_expected_attr)
-
-        del task_attributes["author"]["password"]
-        task_attributes["author"]["role"] = self.user_attributes["role"].value
-        task_attributes["author"]["id"] = self.user.id
-        task_attributes["author"]["avatar_picture"] = (
-            "http://testserver" + self.user.avatar_picture.url
-        )
-
-        del task_attributes["executor"]["password"]
-        task_attributes["executor"]["role"] = self.user_attributes["role"].value
-        task_attributes["executor"]["id"] = self.user.id
-        task_attributes["executor"]["avatar_picture"] = (
-            "http://testserver" + self.user.avatar_picture.url
-        )
-
         response = self.list(args=[self.user.id])
-        expected_response = [task_attributes]
+        expected_response = [self.get_expected_task_attr(task),]
 
         assert response.json() == expected_response
 
@@ -91,33 +66,8 @@ class TestUserTasksViewSet(TestViewSetBase):
         }
         task = self.create_task(task_attributes)
 
-        task_expected_attr = {
-            "id": task.id,
-            "author": self.user_attributes.copy(),
-            "executor": self.user_attributes.copy(),
-            "created_at": self.today,
-            "edited_at": self.today,
-            "tags": [],
-            "state": task_attributes["state"].value,
-            "priority": task_attributes["priority"].value,
-        }
-        task_attributes.update(task_expected_attr)
-
-        del task_attributes["author"]["password"]
-        task_attributes["author"]["role"] = self.user_attributes["role"].value
-        task_attributes["author"]["id"] = self.user.id
-        task_attributes["author"]["avatar_picture"] = (
-            "http://testserver" + self.user.avatar_picture.url
-        )
-
-        del task_attributes["executor"]["password"]
-        task_attributes["executor"]["role"] = self.user_attributes["role"].value
-        task_attributes["executor"]["id"] = self.user.id
-        task_attributes["executor"]["avatar_picture"] = (
-            "http://testserver" + self.user.avatar_picture.url
-        )
+        expected_response = self.get_expected_task_attr(task)
 
         response = self.retrieve(key=[self.user.id, task.id])
-        expected_response = task_attributes
 
         assert response.json() == expected_response
