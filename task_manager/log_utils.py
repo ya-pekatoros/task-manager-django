@@ -35,8 +35,6 @@ class RequestFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         request = getattr(_thread_locals, "request", PlaceHolder())
         total_time = getattr(_thread_locals, "total_time", PlaceHolder())
-        print("1111111")
-        print(type(total_time))
         if isinstance(total_time, float):
             record.total_time = f"{total_time:.2f} seconds"
         else:
