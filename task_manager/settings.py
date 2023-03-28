@@ -173,9 +173,10 @@ LOGGING = {
             "()": "task_manager.log_utils.RequestFormatter",
             "format": (
                 "{asctime} {levelname} method={request.method} path={request.path_info} "
-                "view={view.__qualname__} user={user_id} total_time={total_time} "
+                "view={view.__qualname__} user={user_id} total_time={total_time:.2f} seconds "
                 "remote={remote_addr} {message}"
             ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
             "style": "{",
         },
     },

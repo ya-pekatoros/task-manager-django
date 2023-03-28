@@ -34,11 +34,8 @@ class LoggingMiddleware:
 class RequestFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         request = getattr(_thread_locals, "request", PlaceHolder())
-        total_time = getattr(_thread_locals, "total_time", PlaceHolder())
-        if isinstance(total_time, float):
-            record.total_time = f"{total_time:.2f} seconds"
-        else:
-            record.total_time = total_time
+        total_time = getattr(_thread_locals, "total_time", 0)
+        record.total_time = total_time
         record.request = request  # type: ignore
         record.remote_addr = self.get_remote_ip(request)  # type: ignore
         record.view = getattr(_thread_locals, "view", PlaceHolder())  # type: ignore
