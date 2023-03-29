@@ -23,6 +23,7 @@ boto3 = "^1.26.90"
 pillow = "^9.4.0"
 drf-extensions = "^0.7.1"
 
+
 [tool.poetry.dev-dependencies]
 
 [tool.poetry.group.dev.dependencies]
