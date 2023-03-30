@@ -42,7 +42,6 @@ class TestCountdownJob(TestViewSetBase):
 
         file.unlink(missing_ok=True)
 
-
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_countdown(self):
         response = self.create({"seconds": 1})

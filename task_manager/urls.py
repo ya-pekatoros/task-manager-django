@@ -35,7 +35,7 @@ from task_manager.main.views import (
     UserTasksViewSet,
     TaskTagsViewSet,
     CountdownJobViewSet,
-    AsyncJobViewSet
+    AsyncJobViewSet,
 )
 
 

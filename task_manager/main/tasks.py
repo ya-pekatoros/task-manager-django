@@ -8,6 +8,7 @@ from task_manager.main.models import Task
 from task_manager.celery import app
 from task_manager.main.services.storage_backends import save_file, local_file_name
 
+
 @app.task
 def send_assign_notification(task_id: int) -> None:
     task = Task.objects.get(pk=task_id)
