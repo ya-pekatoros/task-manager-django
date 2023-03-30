@@ -4,7 +4,8 @@ from http import HTTPStatus
 from freezegun import freeze_time
 from datetime import timedelta
 
-from task_manager.main.test.base import UserFactory
+from task_manager.main.test.factories.user import UserFactory
+from task_manager.main.models import User
 
 
 class TestJWTAuth(APITestCase):
@@ -14,7 +15,7 @@ class TestJWTAuth(APITestCase):
 
     @staticmethod
     def create_user():
-        return UserFactory.create()
+        return User.objects.create(**UserFactory.build())
 
     def token_request(self, username: str = None, password: str = "password"):
         client = self.client_class()

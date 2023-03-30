@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from django.conf import settings
+from celery.result import AsyncResult
+from task_manager.main.tasks import countdown
+from typing import Any
 
 from .models import User, Task, Tag
 from .validators import FileMaxSizeValidator
@@ -36,10 +39,42 @@ class UserSelfSerializer(serializers.ModelSerializer):
             FileExtensionValidator(["jpeg", "jpg", "png"]),
         ],
     )
+    delete_avatar = serializers.BooleanField(default=False)
 
     class Meta:
         model = User
-        fields = ("id", "username", "name", "surname", "email", "avatar_picture")
+        fields = (
+            "id",
+            "username",
+            "name",
+            "surname",
+            "email",
+            "avatar_picture",
+            "delete_avatar",
+        )
+
+
+class UserSelfAdminSerializer(serializers.ModelSerializer):
+    avatar_picture = serializers.FileField(
+        required=False,
+        validators=[
+            FileMaxSizeValidator(settings.UPLOAD_MAX_SIZES["avatar_picture"]),
+            FileExtensionValidator(["jpeg", "jpg", "png"]),
+        ],
+    )
+    delete_avatar = serializers.BooleanField(default=False)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "name",
+            "surname",
+            "email",
+            "avatar_picture",
+            "delete_avatar",
+        )
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
@@ -158,3 +193,34 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ("id", "title", "tasks")
+
+
+class RepresentationSerializer(serializers.Serializer):
+    def update(self, instance: Any, validated_data: dict) -> Any:
+        pass
+
+    def create(self, validated_data: dict) -> Any:
+        pass
+
+
+class CountdownJobSerializer(RepresentationSerializer):
+    seconds = serializers.IntegerField(write_only=True)
+
+    task_id = serializers.CharField(read_only=True)
+    status = serializers.CharField(read_only=True)
+
+    def create(self, validated_data: dict) -> AsyncResult:
+        return countdown.delay(**validated_data)
+
+
+class ErrorSerializer(RepresentationSerializer):
+    non_field_errors: serializers.ListSerializer = serializers.ListSerializer(
+        child=serializers.CharField()
+    )
+
+
+class JobSerializer(RepresentationSerializer):
+    task_id = serializers.CharField(read_only=True)
+    status = serializers.CharField(read_only=True)
+    errors = ErrorSerializer(read_only=True, required=False)
+    result = serializers.CharField(required=False)
