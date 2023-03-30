@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "task_manager.log_utils.LoggingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -158,6 +159,39 @@ else:
 
 UPLOAD_MAX_SIZES: dict[str, int] = {
     "avatar_picture": 1 * 1024 * 1024,
+}
+
+CELERY_BROKER_URL = f"redis://{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/0"
+CELERY_INCLUDE = ["task_manager.main.tasks"]
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_TASK_TRACK_STARTED = True
+CELERY_SEND_TASK_SENT_EVENT = True
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "task_manager": {
+            "()": "task_manager.log_utils.RequestFormatter",
+            "format": (
+                "{asctime} {levelname} method={request.method} path={request.path_info} "
+                "view={view.__qualname__} user={user_id} total_time={total_time:.2f} seconds "
+                "remote={remote_addr} {message}"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "formatter": "task_manager",
+            "class": "logging.StreamHandler",
+        }
+    },
+    "loggers": {
+        "django.server": {"level": "INFO", "handlers": ["console"]},
+    },
 }
 
 # Internationalization

@@ -34,6 +34,8 @@ from task_manager.main.views import (
     CurrentUserViewSet,
     UserTasksViewSet,
     TaskTagsViewSet,
+    CountdownJobViewSet,
+    AsyncJobViewSet,
 )
 
 
@@ -52,6 +54,10 @@ router.register(r"tasks", TaskViewSet, basename="tasks").register(
 )
 
 router.register(r"tags", TagViewSet, basename="tags")
+
+router.register(r"countdown", CountdownJobViewSet, basename="countdown")
+
+router.register(r"jobs", AsyncJobViewSet, basename="jobs")
 
 bulk_router = BulkRouter()
 bulk_router.register(r"current-user", CurrentUserViewSet, basename="current_user")
