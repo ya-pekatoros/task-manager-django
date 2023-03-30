@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include, re_path
-from rest_framework import routers
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -22,17 +21,47 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from rest_framework_extensions.routers import ExtendedSimpleRouter
 from django.conf.urls.static import static
 from django.conf import settings
 
 from task_manager.main.admin import task_manager_admin_site
-from task_manager.main.views import UserViewSet, TaskViewSet, TagViewSet
+from task_manager.main.services.single_resource import BulkRouter
+from task_manager.main.views import (
+    UserViewSet,
+    TaskViewSet,
+    TagViewSet,
+    CurrentUserViewSet,
+    UserTasksViewSet,
+    TaskTagsViewSet,
+    CountdownJobViewSet,
+    AsyncJobViewSet,
+)
 
 
-router = routers.SimpleRouter()
-router.register(r"users", UserViewSet, basename="users")
-router.register(r"tasks", TaskViewSet, basename="tasks")
+router = ExtendedSimpleRouter()
+router.register(r"users", UserViewSet, basename="users").register(
+    r"tasks",
+    UserTasksViewSet,
+    basename="user_tasks",
+    parents_query_lookups=["executor_id"],
+)
+router.register(r"tasks", TaskViewSet, basename="tasks").register(
+    r"tags",
+    TaskTagsViewSet,
+    basename="task_tags",
+    parents_query_lookups=["task_id"],
+)
+
 router.register(r"tags", TagViewSet, basename="tags")
+
+router.register(r"countdown", CountdownJobViewSet, basename="countdown")
+
+router.register(r"jobs", AsyncJobViewSet, basename="jobs")
+
+bulk_router = BulkRouter()
+bulk_router.register(r"current-user", CurrentUserViewSet, basename="current_user")
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -50,6 +79,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path("admin/", task_manager_admin_site.urls),
     path("api/", include(router.urls)),
+    path("api/", include(bulk_router.urls)),
     re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
