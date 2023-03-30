@@ -1,8 +1,12 @@
+import io
+import time
+
 from django.core import mail
 from django.template.loader import render_to_string
 
 from task_manager.main.models import Task
 from task_manager.celery import app
+from task_manager.main.services.storage_backends import save_file, local_file_name
 
 
 @app.task
@@ -29,3 +33,11 @@ def send_html_email(
         recipient_list=recipients,
         html_message=html_message,
     )
+
+
+@app.task
+def countdown(seconds: int) -> str:
+    time.sleep(seconds)
+    result_data = io.BytesIO(b"test data")
+    file_name = local_file_name("test_report", countdown.request, "data")
+    return save_file(file_name, result_data)
